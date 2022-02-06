@@ -1,22 +1,25 @@
 <script setup lang="ts">
+import { getUserInfo } from '@/api/user';
 import router from '@/router';
+import { UserInfo } from '@/types/user';
 import { isLogin } from '@/utils/auth';
+import { onMounted, ref } from 'vue';
+
+const userInfo = ref<UserInfo>();
+
+onMounted(() => {
+  getUserInfo().then(res => userInfo.value = res.data);
+});
 </script>
 
 <template>
   <div class="header">
     <span class="logo-content" @click="router.push('/home')">iNote</span>
+    <el-input />
     <div class="header-right">
-      <el-menu mode="horizontal" default-active='home'>
-        <el-menu-item index="home" @click="router.push('/home')">首页</el-menu-item>
-        <el-menu-item index="help" @click="router.push('/note/27')">帮助</el-menu-item>
-        <el-menu-item index="log">更新日志</el-menu-item>
-        <el-menu-item index="download">下载</el-menu-item>
-        <el-menu-item index="explore"  @click="router.push('/explore')">探索</el-menu-item>
-      </el-menu>
-      <el-divider direction="vertical" style="margin-right: 24px" />
+      <el-avatar class="introduce-avatar" :src="userInfo?.avatar">inote</el-avatar>
       <el-button v-if="!isLogin()" @click="router.push('/home/login')">登录</el-button>
-      <el-button v-else type="primary" @click="router.push('/index')">工作区</el-button>
+      <el-button v-else @click="router.push('/index')">工作区</el-button>
     </div>
   </div>
 </template>
@@ -27,8 +30,11 @@ import { isLogin } from '@/utils/auth';
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 0 80px;
-  background-color: #ffffff;
+  height: 48px;
+  padding: 0 16px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px 0 rgb(0 0 0 / 5%);
+  position: relative;
 }
 
 .logo-content {
@@ -44,7 +50,7 @@ import { isLogin } from '@/utils/auth';
 
 .el-menu {
   justify-content: flex-end;
-  min-width: 440px;
+  min-width: 400px;
   border: none;
 }
 </style>

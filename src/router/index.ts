@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, Router, RouteRecordRaw } from 'vue-rout
 
 import HomeLayout from '@/layout/homeLayout/index.vue';
 import IndexLayout from '@/layout/indexLayout/index.vue';
+import ExploreLayout from '@/layout/exploreLayout/index.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -31,6 +32,17 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: '',
         component: () => import('@/views/index/index.vue')
+      },
+    ]
+  },
+  {
+    name: "explore",
+    path: "/explore",
+    component: ExploreLayout,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/explore/index.vue')
       },
     ]
   }
