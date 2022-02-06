@@ -15,6 +15,12 @@ export interface FolderTree extends BaseEntity {
   notes?: NoteFolderInfo[];
 }
 
+export interface Note extends BaseEntity {
+  name?: string;
+  content?: string;
+  publicNoteId?: number;
+}
+
 /**
  * 笔记栏数据
  */

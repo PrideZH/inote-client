@@ -6,6 +6,7 @@ import { FolderState } from './types';
 
 export const useFolderStore = defineStore('folder', (): FolderState => {
   const folderTree = ref<FolderTree[]>([]);
+  const currentFolder = ref<FolderTree | null>(null);
   const defaultExpandedKeys: number[] = [];
 
   getFolderTree().then(res => folderTree.value = res.data);
@@ -59,5 +60,5 @@ export const useFolderStore = defineStore('folder', (): FolderState => {
     del(folderTree.value, id);
   }
 
-  return { folderTree, defaultExpandedKeys, getFolderById, addFolderTree, setFolderTree, delFolderTree }
+  return { folderTree, currentFolder, defaultExpandedKeys, getFolderById, addFolderTree, setFolderTree, delFolderTree }
 });

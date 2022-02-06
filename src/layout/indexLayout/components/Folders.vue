@@ -8,6 +8,7 @@ import { ElMessage } from 'element-plus';
 import { ref, watch } from 'vue';
 import RenameDialog from './FolderRenameDialog.vue';
 import AddDialog from './FolderAddDialog.vue';
+import { getNotRelevance } from '@/api/note';
 
 const folderStore = useFolderStore();
 const noteStore = useNoteStore();
@@ -29,7 +30,13 @@ const onClick = (folder: FolderTree) => {
   }
   timer = setTimeout(() => clickCut = 0, 500);
   if (clickCut === 2) {
-    noteStore.showNotes(folder);
+    if (folder.id === 0) {
+      folderStore.currentFolder = null;
+      getNotRelevance().then(res => noteStore.notes = res.data);
+    } else {
+      folderStore.currentFolder = folder;
+      noteStore.showNotes(folder);
+    }
     clickCut = 0;
   }
 };
@@ -75,7 +82,7 @@ const dropdownCommand = (command: {name: string, id: number}) => {
     <IconBtn @click="addDialogRef?.open(0)"><el-icon><FolderAdd /></el-icon></IconBtn>
   </div>
 
-  <el-tree :data="[{label: '未分类'}]" />
+  <el-tree :data="[{id: 0, label: '未分类'}]" @node-click="onClick" />
   <el-tree
     ref="treeRef"
     :data="folderStore.folderTree"

@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { addFolder } from '@/api/folder';
-import { useFolderStore } from '@/store';
+import { addNote } from '@/api/note';
+import { useNoteStore } from '@/store';
 import { ref } from 'vue';
 
-const folderStore = useFolderStore();
+const noteStore = useNoteStore();
 
-const __formDefault = { name: '', parentId: 0 };
+const __formDefault = { name: '', folderId: 0 };
 const form = ref<{
   name: string,
-  parentId: number
+  folderId: number
 }>({...__formDefault});
 
 const visible = ref<boolean>(false);
@@ -16,8 +16,8 @@ const loading = ref<boolean>(false);
 
 const onConfirm = () => {
   loading.value = true;
-  addFolder(form.value).then(res => {
-    folderStore.addFolderTree(res.data, form.value.parentId);
+  addNote(form.value).then(res => {
+    noteStore.addNote(res.data);
     loading.value = false;
     visible.value = false;
   }).catch(err => {
@@ -25,18 +25,18 @@ const onConfirm = () => {
   });
 };
 
-const open = (parentId: number) => {
+const open = (folderId: number) => {
   form.value = {...__formDefault};
-  form.value.parentId = parentId;
+  form.value.folderId = folderId;
   visible.value = true;
 };
 defineExpose({ open });
 </script>
 
 <template>
-  <el-dialog v-model="visible" title="添加文件夹">
+  <el-dialog v-model="visible" title="添加笔记">
     <el-form :model="form">
-      <el-form-item label="文件夹名">
+      <el-form-item label="笔记名">
         <el-input v-model="form.name" @keydown.enter.prevent="onConfirm" />
       </el-form-item>
     </el-form>

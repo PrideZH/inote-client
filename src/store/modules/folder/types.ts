@@ -3,6 +3,7 @@ import { Ref } from "vue";
 
 export interface FolderState {
   folderTree: Ref<FolderTree[]>;
+  currentFolder: Ref<FolderTree | null>;
   defaultExpandedKeys: number[]; // 展开的节点
   getFolderById: Function;
   addFolderTree: Function; // 添加文件夹节点
