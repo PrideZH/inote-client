@@ -1,5 +1,5 @@
 const isLogin = () => {
-  return !!localStorage.getItem('token');
+  return !!localStorage.getItem('token'); // 两个!转换为 boolean
 };
 
 const getToken = () => {

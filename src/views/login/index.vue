@@ -70,10 +70,10 @@ const onLogin = () => {
   <div class="login-box">
     <el-form ref="formRef" :model="form" :rules="rules">
       <el-form-item prop="username">
-        <el-input v-model="form.username" placeholder="QQ邮箱" />
+        <el-input v-model="form.username" placeholder="QQ邮箱" @keydown.enter="onLogin" />
       </el-form-item>
       <el-form-item prop="password">
-        <el-input show-password v-model="form.password" placeholder="密码" />
+        <el-input show-password v-model="form.password" placeholder="密码" @keydown.enter="onLogin" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onLogin" :loading="loginLoading">登录</el-button>

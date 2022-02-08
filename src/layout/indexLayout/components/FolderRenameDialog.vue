@@ -42,7 +42,7 @@ defineExpose({ open });
 <template>
   <el-dialog v-model="visible" title="添加文件夹">
     <el-form :model="form">
-      <el-form-item label="文件夹名">
+      <el-form-item prop="name" label="文件夹名">
         <el-input v-model="form.name" @keydown.enter.prevent="onConfirm" />
       </el-form-item>
     </el-form>

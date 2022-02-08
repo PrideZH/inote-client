@@ -6,10 +6,6 @@ import ExploreLayout from '@/layout/exploreLayout/index.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: '/',
-    redirect: 'home',
-  },
-  {
     name: 'home',
     path: '/home',
     component: HomeLayout,
@@ -36,16 +32,50 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   {
-    name: "explore",
-    path: "/explore",
+    path: '/',
     component: ExploreLayout,
+    redirect: 'explore',
     children: [
       {
-        path: '',
+        name: 'explore',
+        path: 'explore',
         component: () => import('@/views/explore/index.vue')
       },
+      {
+        name: 'account',
+        path: 'account',
+        component: () => import('@/views/account/index.vue'),
+        redirect: '/account/home',
+        children: [
+          {
+            path: 'home',
+            component: () => import('@/views/account/home/index.vue')
+          },
+          {
+            path: 'info',
+            component: () => import('@/views/account/info/index.vue')
+          },
+          {
+            path: 'avatar',
+            component: () => import('@/views/account/avatar/index.vue')
+          }
+        ]
+      },
+      {
+        name: 'setting',
+        path: 'setting',
+        component: () => import('@/views/setting/index.vue'),
+        redirect: '/setting/picbed',
+        children: [
+          {
+            path: 'picbed',
+            component: () => import('@/views/setting/picbed/index.vue')
+          }
+        ]
+      }
     ]
-  }
+  },
+
   // {
   //   path: '/:pathMatch(.*)*',
   //   name: 'notFound',
@@ -59,3 +89,17 @@ const router: Router = createRouter({
 });
 
 export default router;
+
+export const push = (path: string, query?: object) => {
+  router.push(path);
+};
+
+/**
+ * 新开标签页
+ */
+export const openBlank = (path: string) => {
+  const routeUrl = router.resolve({
+    path, query: {}
+  });
+  window.open(routeUrl.href, '_blank');
+};

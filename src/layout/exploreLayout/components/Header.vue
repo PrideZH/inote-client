@@ -1,15 +1,9 @@
 <script setup lang="ts">
-import { getUserInfo } from '@/api/user';
 import router from '@/router';
-import { UserInfo } from '@/types/user';
+import { useUserStore } from '@/store';
 import { isLogin } from '@/utils/auth';
-import { onMounted, ref } from 'vue';
 
-const userInfo = ref<UserInfo>();
-
-onMounted(() => {
-  getUserInfo().then(res => userInfo.value = res.data);
-});
+const userStore = useUserStore();
 </script>
 
 <template>
@@ -17,7 +11,7 @@ onMounted(() => {
     <span class="logo-content" @click="router.push('/home')">iNote</span>
     <el-input />
     <div class="header-right">
-      <el-avatar class="introduce-avatar" :src="userInfo?.avatar">inote</el-avatar>
+      <el-avatar :src="'http://localhost:8080/' + userStore.userInfo?.avatarUrl">inote</el-avatar>
       <el-button v-if="!isLogin()" @click="router.push('/home/login')">登录</el-button>
       <el-button v-else @click="router.push('/index')">工作区</el-button>
     </div>

@@ -3,8 +3,14 @@ import { UserInfo } from '@/types/user';
 import { Token } from '@/types/global';
 
 export interface LoginData {
-  username: string,
-  password: string
+  username: string;
+  password: string;
+}
+
+export interface UserData {
+  password?: string;
+  nickname?: string;
+  avatarUrl?: string;
 }
 
 export function login(data: LoginData) {
@@ -17,4 +23,8 @@ export function logout() {
 
 export function getUserInfo() {
   return axios.get<UserInfo>('/api/user/me');
+}
+
+export function updateUser(id: number, userData: UserData) {
+  return axios.patch<UserInfo>(`/api/user/${id}`, userData);
 }

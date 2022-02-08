@@ -1,18 +1,20 @@
 <script setup lang="ts">
-import { useAppStore, useFolderStore } from '@/store';
+import { useAppStore, useFolderStore, useUserStore } from '@/store';
 import { computed, onMounted, ref } from 'vue';
 import { DArrowLeft, DArrowRight, Folder, Plus } from '@element-plus/icons-vue';
 import Folders from './components/Folders.vue';
 import IconBtn from '@/components/IconBtn.vue';
 import Notes from './components/Notes.vue';
 import Outline from './components/Outline.vue';
-import { getUserInfo } from '@/api/user';
-import { UserInfo } from '@/types/user';
+import { getUserInfo, logout } from '@/api/user';
 import AddDialog from './components/NoteAddDialog.vue';
+import { openBlank, push } from '@/router';
+import { clearToken } from '@/utils/auth';
 
 const addDialogRef = ref<InstanceType<typeof AddDialog>>();
 
 const appStore = useAppStore();
+const userStore = useUserStore();
 const folderStore = useFolderStore();
 const menuWidth = computed(() => {
   return appStore.isCollapse ? 64 : 200;
@@ -26,22 +28,23 @@ const onTabClick = (tab: string) => {
   console.log(tab)
 };
 
-const userInfo = ref<UserInfo>();
-
 const dropdownCommand = (command: string) => {
-  if (command === 'space') {
-
+  if (command === 'account') {
+    openBlank('/account')
   } else if (command === 'explore') {
-
+    openBlank('/explore')
   } else if (command === 'setting') {
-
+    openBlank('/setting')
   } else if (command === 'logout') {
-
+    logout().then(res => {
+      clearToken();
+      push('/home');
+    });
   }
 }
 
 onMounted(() => {
-  getUserInfo().then(res => userInfo.value = res.data);
+  getUserInfo().then(res => userStore.userInfo = res.data);
 });
 </script>
 
@@ -50,15 +53,15 @@ onMounted(() => {
     <el-aside class="aside" :width="menuWidth + 'px'">
       <el-dropdown trigger="click" @command="dropdownCommand">
         <div class="introduce">
-          <el-avatar class="introduce-avatar" :src="userInfo?.avatar">inote</el-avatar>
+          <el-avatar class="introduce-avatar" :src="'http://localhost:8080/' + userStore.userInfo?.avatarUrl">inote</el-avatar>
           <span v-if="!appStore.isCollapse" style="flex-shrink: 0">
-            <div>{{ userInfo?.nickname }}</div>
-            <div class="introduce-username">{{ userInfo?.username }}</div>
+            <div>{{ userStore.userInfo?.nickname }}</div>
+            <div class="introduce-username">{{ userStore.userInfo?.username }}</div>
           </span>
         </div>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item command="space">个人空间</el-dropdown-item>
+            <el-dropdown-item command="account">个人中心</el-dropdown-item>
             <el-dropdown-item command="explore">探索</el-dropdown-item>
             <el-dropdown-item command="setting">设置</el-dropdown-item>
             <el-dropdown-item command="logout">退出登录</el-dropdown-item>
