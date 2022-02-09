@@ -26,6 +26,10 @@ export interface Note extends BaseEntity {
   article?: number;
 }
 
+export interface NotePage extends BaseEntity {
+  name: string;
+}
+
 /**
  * 笔记栏数据
  */

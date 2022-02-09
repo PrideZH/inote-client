@@ -22,6 +22,18 @@ export const useNoteStore = defineStore('note', () => {
   };
   refresh();
 
+  // 保存当前笔记
+  const saveCurrentNote = () => {
+    if (currentNote.value !== null && isAlter.value) {
+      const current = currentNotes.value[currentNotes.value.length - 1];
+      current.content = editor.value?.getValue() as string;
+      noteApi.set(current.id, { content: editor.value?.getValue() }).then(res => {
+        current.updateTime === res.data.updateTime;
+        isAlter.value = false;
+      });
+    }
+  };
+
   // 获取指定文件夹下的所有笔记 0-未分类文件夹
   const show = (folderId: number) => {
     folderApi.getRelevance(folderId).then(res => notes.value = res.data);
@@ -65,10 +77,7 @@ export const useNoteStore = defineStore('note', () => {
 
   // 打开笔记 isCover-是否覆盖当前所有以打开笔记
   const push = (note: Note, isCover: boolean = false) => {
-    // 保存当前笔记
-    if (currentNote.value !== null && isAlter.value) {
-      noteApi.set(currentNote.value.id, { content: editor.value?.getValue() });
-    }
+    saveCurrentNote();
 
     if (isCover) {
       currentNotes.value = [ note ];
@@ -103,6 +112,7 @@ export const useNoteStore = defineStore('note', () => {
     isAlter,
     show,
     refresh,
+    saveCurrentNote,
     push,
     inputCallback
   };

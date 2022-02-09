@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Vditor from 'vditor';
 import { onMounted } from 'vue';
 
 onMounted(() => {
@@ -13,4 +12,8 @@ onMounted(() => {
 </template>
 
 <style scoped>
+#outline {
+  height: calc(100vh - 110px);
+  overflow-y: scroll;
+}
 </style>

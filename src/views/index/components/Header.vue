@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useNoteStore } from '@/store';
-import { Note } from '@/types';
 import { ArrowRight } from '@element-plus/icons-vue'
 
 const noteStore = useNoteStore();

@@ -163,6 +163,7 @@ onMounted(() => {
 
 .note-tabs {
   flex: 1;
+  height: 100%;
 }
 
 .note-tool {

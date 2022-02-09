@@ -2,20 +2,20 @@
 import { noteApi } from '@/api';
 import { useNoteStore } from '@/store';
 import Vditor from 'vditor';
-import { onMounted, nextTick } from 'vue';
+import { onMounted } from 'vue';
 import Header from './components/Header.vue';
 
 const noteStore = useNoteStore();
 
-const onSave = () => {
-  if (noteStore.currentNote === null) return;
-  noteApi.set(noteStore.currentNote.id, { content: noteStore.editor?.getValue() }).then(res => {
-    noteStore.currentNotes[noteStore.currentNotes.length - 1] = res.data;
-    noteStore.isAlter = false;
-  });
-};
-
 onMounted(() => {
+  // 关键字补齐(hint)暂不支持异步 [#1097](https://github.com/Vanessa219/vditor/pull/1097)
+  let keyworks: {value: string, html: string}[] = [];
+  noteApi.getList().then(res => {
+    keyworks = res.data.map(note => ({
+      html: note.name, value: `[${note.name}](http://localhost:3001/index?n=${note.id})`
+    }));
+  });
+
   noteStore.editor = new Vditor('editor', {
     height: window.innerHeight - 40,
     cache: {
@@ -29,6 +29,18 @@ onMounted(() => {
     after: () => {
       // 设置大纲到侧边栏下
       document.getElementById('outline')?.append(document.getElementsByClassName('vditor-outline')[0]);
+    },
+    hint: {
+      extend: [
+        {
+          key: '@',
+          hint: (key) => {
+            if (key === '') return [];
+            key = key.toLocaleLowerCase();
+            return keyworks.filter(keywork => keywork.html.toLocaleLowerCase().indexOf(key) === 0);
+          },
+        }
+      ]
     }
   });
 });
@@ -37,7 +49,7 @@ onMounted(() => {
 <template>
   <div class="note-container">
     <Header class="header" />
-    <div v-show="noteStore.currentNote !== null" id="editor" @keydown.ctrl.s.prevent="onSave" />
+    <div v-show="noteStore.currentNote !== null" id="editor" @keydown.ctrl.s.prevent="noteStore.saveCurrentNote()" />
   </div>
 </template>
 
