@@ -53,7 +53,7 @@ onMounted(() => {
     <el-aside class="aside" :width="menuWidth + 'px'">
       <el-dropdown trigger="click" @command="dropdownCommand">
         <div class="introduce">
-          <el-avatar class="introduce-avatar" :src="'http://localhost:8080/' + userStore.userInfo?.avatarUrl">inote</el-avatar>
+          <el-avatar class="introduce-avatar" :src="userStore.avatarUrl">inote</el-avatar>
           <span v-if="!appStore.isCollapse" style="flex-shrink: 0">
             <div>{{ userStore.userInfo?.nickname }}</div>
             <div class="introduce-username">{{ userStore.userInfo?.username }}</div>

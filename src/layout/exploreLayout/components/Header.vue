@@ -11,7 +11,7 @@ const userStore = useUserStore();
     <span class="logo-content" @click="router.push('/home')">iNote</span>
     <el-input />
     <div class="header-right">
-      <el-avatar :src="'http://localhost:8080/' + userStore.userInfo?.avatarUrl">inote</el-avatar>
+      <el-avatar :src="userStore.avatarUrl">inote</el-avatar>
       <el-button v-if="!isLogin()" @click="router.push('/home/login')">登录</el-button>
       <el-button v-else @click="router.push('/index')">工作区</el-button>
     </div>

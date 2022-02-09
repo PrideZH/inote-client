@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { addFolder } from '@/api/folder';
+import { folderApi } from '@/api';
 import { useFolderStore } from '@/store';
 import { ref } from 'vue';
 
@@ -16,8 +16,8 @@ const loading = ref<boolean>(false);
 
 const onConfirm = () => {
   loading.value = true;
-  addFolder(form.value).then(res => {
-    folderStore.addFolderTree(res.data, form.value.parentId);
+  folderApi.add(form.value).then(res => {
+    folderStore.refresh();
     loading.value = false;
     visible.value = false;
   }).catch(err => {

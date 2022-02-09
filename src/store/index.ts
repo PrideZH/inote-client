@@ -2,7 +2,7 @@ import { createPinia } from 'pinia';
 import { useAppStore } from './modules/app';
 import { useUserStore } from './user';
 import { useFolderStore } from './folder';
-import { useNoteStore } from './modules/note';
+import { useNoteStore } from './note';
 
 const pinia = createPinia();
 

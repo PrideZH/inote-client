@@ -1,14 +1,17 @@
 <script setup lang="ts">
+import Vditor from 'vditor';
 import { MoreFilled } from '@element-plus/icons-vue';
 import { useNoteStore } from '@/store';
 import { NoteFolderInfo } from '@/types';
-import { getNote } from '@/api/note';
+import { noteApi } from '@/api';
 
 const noteStore = useNoteStore();
 
+// 笔记节点样式
 const customNodeClass = (data: NoteFolderInfo) => {
   let style = 'default';
-  if (noteStore.currentNote.length !== 0 && noteStore.currentNote[0].id === data.noteId) {
+  // 激活节点
+  if (noteStore.currentNote !== null && noteStore.currentNote.id === data.noteId) {
     style += ' active';
     if (noteStore.isAlter) style += ' not-save';
   }
@@ -17,11 +20,18 @@ const customNodeClass = (data: NoteFolderInfo) => {
 
 const onClick = (note: NoteFolderInfo) => {
   // 不能重复点击
-  if (noteStore.currentNote.length !== 0 && note.noteId === noteStore.currentNote[0].id) return;
+  if (noteStore.currentNote !== null && note.noteId === noteStore.currentNote.id) return;
 
-  getNote(note.noteId as number).then(res => {
-    noteStore.currentNote = [res.data];
-    noteStore.editor?.setValue(res.data.content || '', true);
+  // 保存当前笔记
+  if (noteStore.currentNote !== null && noteStore.isAlter) {
+    noteApi.set(noteStore.currentNote.id, { content: noteStore.editor?.getValue() });
+  }
+
+  noteApi.get(note.noteId as number).then(res => {
+    noteStore.currentNotes = [res.data];
+    if (noteStore.editor !== null) {
+      (noteStore.editor as Vditor).setValue(res.data.content || '', true);
+    }
     noteStore.isAlter = false;
   });
 };

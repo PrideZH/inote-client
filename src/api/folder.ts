@@ -12,25 +12,35 @@ export interface RelevanceData {
   folderId: number;
 }
 
-export function addFolder(folderData: FolderData) {
-  return axios.post<FolderTree>('/api/folder/me', folderData);
+const folderApi = {
+
+  add (folderData: FolderData) {
+    return axios.post<FolderTree>('/api/folder/me', folderData);
+  },
+
+  /**
+   * 添加笔记与文件夹的关联
+   */
+  addRelevance (relevanceData: RelevanceData) {
+    return axios.post<NoteFolderInfo>('/api/folder/relevance', relevanceData);
+  },
+
+  getFolderTree () {
+    return axios.get<FolderTree[]>('/api/folder/me/tree');
+  },
+
+  getRelevance (id: number) {
+    return axios.get<NoteFolderInfo[]>(`/api/folder/${id}/relevance`);
+  },
+
+  set (id: number, folderData: FolderData) {
+    return axios.patch<FolderTree>(`/api/folder/${id}`, folderData);
+  },
+
+  del (id: number) {
+    return axios.delete(`/api/folder/${id}`);
+  }
+
 }
 
-/**
- * 添加笔记与文件夹的关联
- */
-export function addRelevance(relevanceData: RelevanceData) {
-  return axios.post<NoteFolderInfo>('/api/folder/relevance', relevanceData);
-}
-
-export function getFolderTree() {
-  return axios.get<FolderTree[]>('/api/folder/me/tree');
-}
-
-export function setFolder(id: number, folderData: FolderData) {
-  return axios.patch<FolderTree>(`/api/folder/${id}`, folderData);
-}
-
-export function delFolder(id: number) {
-  return axios.delete(`/api/folder/${id}`);
-}
+export default folderApi;

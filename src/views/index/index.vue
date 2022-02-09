@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { setNote } from '@/api/note';
+import { noteApi } from '@/api';
 import { useNoteStore } from '@/store';
 import Vditor from 'vditor';
 import { onMounted } from 'vue';
@@ -8,10 +8,9 @@ import Header from './components/Header.vue';
 const noteStore = useNoteStore();
 
 const onSave = () => {
-  if (noteStore.currentNote.length === 0) return;
-  setNote(noteStore.currentNote[noteStore.currentNote.length - 1].id as number,
-      { content: noteStore.editor?.getValue() }).then(res => {
-    noteStore.currentNote[noteStore.currentNote.length - 1] = res.data;
+  if (noteStore.currentNote === null) return;
+  noteApi.set(noteStore.currentNote.id, { content: noteStore.editor?.getValue() }).then(res => {
+    noteStore.currentNotes[noteStore.currentNotes.length - 1] = res.data;
     noteStore.isAlter = false;
   });
 };
@@ -40,7 +39,7 @@ onMounted(() => {
 <template>
   <div class="note-container">
     <Header class="header" />
-    <div v-show="noteStore.currentNote.length !== 0" id="editor" @keydown.ctrl.s.prevent="onSave" />
+    <div v-show="noteStore.currentNote !== null" id="editor" @keydown.ctrl.s.prevent="onSave" />
   </div>
 </template>
 

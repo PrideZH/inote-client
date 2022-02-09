@@ -7,22 +7,24 @@ export interface NoteData {
   content?: string;
 }
 
-export function addNote(noteData: NoteData) {
-  return axios.post<NoteFolderInfo>('/api/note/me', noteData);
-}
+const noteApi = {
 
-export function getNote(id: number) {
-  return axios.get<Note>(`/api/note/${id}`);
-}
+  add (noteData: NoteData) {
+    return axios.post<NoteFolderInfo>('/api/note/me', noteData);
+  },
 
-export function getNotRelevance() {
-  return axios.get<NoteFolderInfo[]>(`/api/note/notRelevance`);
-}
+  get (id: number) {
+    return axios.get<Note>(`/api/note/${id}`);
+  },
 
-export function setNote(id: number, noteData: NoteData) {
-  return axios.patch<Note>(`/api/note/${id}`, noteData);
-}
+  set (id: number, noteData: NoteData) {
+    return axios.patch<Note>(`/api/note/${id}`, noteData);
+  },
 
-export function delNote(id: number) {
-  return axios.delete(`/api/note/${id}`);
-}
+  delNote (id: number) {
+    return axios.delete(`/api/note/${id}`);
+  }
+
+};
+
+export default noteApi;

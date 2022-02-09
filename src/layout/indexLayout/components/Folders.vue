@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { delFolder, setFolder } from '@/api/folder';
 import IconBtn from '@/components/IconBtn.vue';
 import { useFolderStore, useNoteStore } from '@/store';
 import { FolderTree } from '@/types';
@@ -8,9 +7,8 @@ import { ElMessage } from 'element-plus';
 import { ref, watch } from 'vue';
 import RenameDialog from './FolderRenameDialog.vue';
 import AddDialog from './FolderAddDialog.vue';
-import { getNotRelevance } from '@/api/note';
-import { DropType } from 'element-plus/es/components/tree/src/tree.type';
 import Node from 'element-plus/es/components/tree/src/model/node';
+import { folderApi, noteApi } from '@/api';
 
 const folderStore = useFolderStore();
 const noteStore = useNoteStore();
@@ -19,6 +17,7 @@ const renameDialogRef = ref<InstanceType<typeof RenameDialog>>();
 const addDialogRef = ref<InstanceType<typeof AddDialog>>();
 
 let clickCut: number = 0, clickKey: number = 0, timer: any = null;
+// 双击触发
 const onClick = (folder: FolderTree) => {
   if (folder.id === clickKey) {
     clickCut++;
@@ -32,13 +31,9 @@ const onClick = (folder: FolderTree) => {
   }
   timer = setTimeout(() => clickCut = 0, 500);
   if (clickCut === 2) {
-    if (folder.id === 0) {
-      folderStore.currentFolder = null;
-      getNotRelevance().then(res => noteStore.notes = res.data);
-    } else {
-      folderStore.currentFolder = folder;
-      noteStore.showNotes(folder);
-    }
+    // 获取文件夹笔记
+    folderStore.currentFolder = folder;
+    noteStore.show(folder.id);
     clickCut = 0;
   }
 };
@@ -60,11 +55,11 @@ const onDrop = (
 ) => {
   if (dropType === 'inner') {
     const parentId = dropNode.data.id;
-    setFolder(draggingNode.data.id, {parentId}).then(res => folderStore.refresh());
+    folderApi.set(draggingNode.data.id, {parentId}).then(res => folderStore.refresh());
   } else if (dropType === 'before' || dropType === 'after') {
     const parent: FolderTree | null = folderStore.getParent(dropNode.data.id);
     const parentId = parent ? parent.id : 0;
-    setFolder(draggingNode.data.id, {parentId}).then(res => folderStore.refresh());
+    folderApi.set(draggingNode.data.id, {parentId}).then(res => folderStore.refresh());
   }
 };
 
@@ -85,9 +80,9 @@ const dropdownCommand = (command: {name: string, id: number}) => {
   } else if (command.name === 'update') {
     renameDialogRef.value?.open(command.id);
   } else if (command.name === 'delete') {
-    delFolder(command.id).then(res => {
+    folderApi.del(command.id).then(res => {
       ElMessage.success('删除成功');
-      folderStore.delFolderTree(command.id);
+      folderStore.refresh();
     });
   }
 };

@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import articleApi from '@/api/article';
+import { Page, ArticlePage } from '@/types';
+import { onMounted, ref } from 'vue';
+
 const data = [
   {
     id: 1,
@@ -12,53 +16,14 @@ const data = [
       id: 1,
       nickname: 'PrideZH'
     }
-  },
-  {
-    id: 2,
-    name: 'title',
-    content: 'test test test test test test test test test test test test test test ...',
-  },
-  {
-    id: 1,
-    name: 'title',
-    content: 'test test test test test test test test test test test test test test ...',
-  },
-  {
-    id: 2,
-    name: 'title',
-    content: 'test test test test test test test test test test test test test test ...',
-  },
-  {
-    id: 1,
-    name: 'title',
-    content: 'test test test test test test test test test test test test test test ...',
-  },
-  {
-    id: 2,
-    name: 'title',
-    content: 'test test test test test test test test test test test test test test ...',
-  },
-  {
-    id: 1,
-    name: 'title',
-    content: 'test test test test test test test test test test test test test test ...',
-  },
-  {
-    id: 2,
-    name: 'title',
-    content: 'test test test test test test test test test test test test test test ...',
-  },
-  {
-    id: 1,
-    name: 'title',
-    content: 'test test test test test test test test test test test test test test ...',
-  },
-  {
-    id: 2,
-    name: 'title',
-    content: 'test test test test test test test test test test test test test test ...',
   }
-]
+];
+
+const articles = ref<Page<ArticlePage>>();
+
+onMounted(() => {
+  articleApi.getList().then(res => {articles.value = res.data, console.log(res.data)});
+});
 </script>
 
 <template>
@@ -76,6 +41,22 @@ const data = [
     </div>
     <div class="note-cover" v-if="note.cover">
       <img :src="note.cover" />
+    </div>
+  </div>
+  <div class="note-box" v-for="article in articles?.records" :key="article.id">
+    <div class="note-introduce">
+      <div class="note-name">{{ article.title }}</div>
+      <div class="note-content">{{ article.summary }}</div>
+      <div class="note-data">
+        <!-- <div>{{ article.likeCount }} {{ note.starCount }} {{note.commentCount}}</div> -->
+        <div>
+          <span class="note-author">{{ article.author.nickname }}</span>
+          <span>{{ article.updateTime }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="note-cover" v-if="article.coverUrl">
+      <img :src="article.coverUrl" />
     </div>
   </div>
 </template>
@@ -121,8 +102,9 @@ const data = [
 }
 
 .note-content {
-  color: #48494d;
   flex: 1;
+  color: #999;
+  font-size: 14px;
 }
 
 .note-data {

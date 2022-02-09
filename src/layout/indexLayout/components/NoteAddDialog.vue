@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { addNote } from '@/api/note';
+import { noteApi } from '@/api';
 import { useNoteStore } from '@/store';
 import { ref } from 'vue';
 
@@ -16,8 +16,8 @@ const loading = ref<boolean>(false);
 
 const onConfirm = () => {
   loading.value = true;
-  addNote(form.value).then(res => {
-    noteStore.addNote(res.data);
+  noteApi.add(form.value).then(res => {
+    noteStore.refresh();
     loading.value = false;
     visible.value = false;
   }).catch(err => {

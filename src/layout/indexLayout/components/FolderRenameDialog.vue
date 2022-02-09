@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
 import { useFolderStore } from '@/store';
-import { setFolder } from '@/api/folder';
 import { FolderTree } from '@/types';
+import { folderApi } from '@/api';
 
 const folderStore = useFolderStore();
 
@@ -19,8 +19,8 @@ const loading = ref<boolean>(false);
 
 const onConfirm = () => {
   loading.value = true;
-  setFolder(form.id, { name: form.name }).then(res => {
-    folderStore.setFolderTree(form.id, res.data);
+  folderApi.set(form.id, { name: form.name }).then(res => {
+    folderStore.refresh();
     loading.value = false;
     visible.value = false;
   }).catch(err => {
