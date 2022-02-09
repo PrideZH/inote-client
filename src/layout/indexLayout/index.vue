@@ -24,9 +24,6 @@ const toggleCollapse = () => {
 };
 
 const tabActiveName = ref<string>('notes');
-const onTabClick = (tab: string) => {
-  console.log(tab)
-};
 
 const dropdownCommand = (command: string) => {
   if (command === 'account') {
@@ -78,7 +75,7 @@ onMounted(() => {
     </el-aside>
     <el-main class="content">
       <div class="note-aside">
-        <el-tabs class="note-tabs" v-model="tabActiveName" @tab-click="onTabClick">
+        <el-tabs class="note-tabs" v-model="tabActiveName">
           <el-tab-pane label="笔记" name="notes"><Notes /></el-tab-pane>
           <el-tab-pane label="大纲" name="outline"><Outline /></el-tab-pane>
         </el-tabs>
@@ -90,7 +87,7 @@ onMounted(() => {
           {{ folderStore.currentFolder?.name }}
           <IconBtn
             content="新建笔记"
-            @click="addDialogRef?.open(folderStore.currentFolder === null ? 0 : folderStore.currentFolder.id as number)"
+            @click="addDialogRef?.open(folderStore.currentFolder === null ? 0 : folderStore.currentFolder.id)"
           >
             <el-icon><Plus /></el-icon>
           </IconBtn>

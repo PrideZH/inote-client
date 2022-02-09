@@ -21,9 +21,9 @@ export interface FolderTree extends BaseEntity {
 }
 
 export interface Note extends BaseEntity {
-  name?: string;
-  content?: string;
-  publicNoteId?: number;
+  name: string;
+  content: string;
+  article?: number;
 }
 
 /**

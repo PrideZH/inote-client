@@ -2,7 +2,7 @@
 import { noteApi } from '@/api';
 import { useNoteStore } from '@/store';
 import Vditor from 'vditor';
-import { onMounted } from 'vue';
+import { onMounted, nextTick } from 'vue';
 import Header from './components/Header.vue';
 
 const noteStore = useNoteStore();
@@ -25,9 +25,7 @@ onMounted(() => {
       enable: true,
       position: 'left'
     },
-    input: () => {
-      noteStore.isAlter = true;
-    },
+    input: () => noteStore.inputCallback(),
     after: () => {
       // 设置大纲到侧边栏下
       document.getElementById('outline')?.append(document.getElementsByClassName('vditor-outline')[0]);

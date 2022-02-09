@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useNoteStore } from '@/store';
+import { Note } from '@/types';
 import { ArrowRight } from '@element-plus/icons-vue'
 
 const noteStore = useNoteStore();
@@ -8,7 +9,9 @@ const noteStore = useNoteStore();
 <template>
   <div class="header">
     <el-breadcrumb :separator-icon="ArrowRight">
-      <el-breadcrumb-item v-for=" note in noteStore.currentNotes" :key="note.id">{{ note.name }}</el-breadcrumb-item>
+      <el-breadcrumb-item v-for=" note in noteStore.currentNotes" :key="note.id">
+        <a @click="noteStore.push(note)">{{ note.name }}</a>
+      </el-breadcrumb-item>
     </el-breadcrumb>
     <span class="info-text" v-if="noteStore.currentNote !== null">
       LUD: {{ noteStore.currentNote.updateTime }}

@@ -22,17 +22,8 @@ const onClick = (note: NoteFolderInfo) => {
   // 不能重复点击
   if (noteStore.currentNote !== null && note.noteId === noteStore.currentNote.id) return;
 
-  // 保存当前笔记
-  if (noteStore.currentNote !== null && noteStore.isAlter) {
-    noteApi.set(noteStore.currentNote.id, { content: noteStore.editor?.getValue() });
-  }
-
   noteApi.get(note.noteId as number).then(res => {
-    noteStore.currentNotes = [res.data];
-    if (noteStore.editor !== null) {
-      (noteStore.editor as Vditor).setValue(res.data.content || '', true);
-    }
-    noteStore.isAlter = false;
+    noteStore.push(res.data, true);
   });
 };
 
