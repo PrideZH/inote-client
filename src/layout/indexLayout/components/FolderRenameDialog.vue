@@ -30,7 +30,6 @@ const onConfirm = () => {
 
 const open = (id: number) => {
   const folder: FolderTree | null = folderStore.getFolderById(id);
-  console.log(folder)
   if (folder === null) return;
   form.id = folder.id as number;
   form.name = folder.name as string;

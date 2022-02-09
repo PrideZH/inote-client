@@ -1,7 +1,7 @@
 export interface BaseEntity {
-  id?: number;
-  createTime?: Date;
-  updateTime?: Date;
+  id: number;
+  createTime: Date;
+  updateTime: Date;
 }
 
 export interface Folder extends BaseEntity {

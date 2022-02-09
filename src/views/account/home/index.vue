@@ -7,7 +7,7 @@ const userStore = useUserStore();
 <template>
   <div>
     <div class="introduce">
-      <el-avatar class="introduce-avatar" :src="'http://localhost:8080/' + userStore.userInfo?.avatarUrl">inote</el-avatar>
+      <el-avatar class="introduce-avatar" :src="userStore.avatarUrl">inote</el-avatar>
       <div class="introduce-info">
         <div>{{ userStore.userInfo?.nickname }}</div>
         <div class="introduce-username">{{ userStore.userInfo?.username }}</div>

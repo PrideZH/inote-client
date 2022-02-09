@@ -2,7 +2,7 @@ import { FolderTree, Note, NoteFolderInfo } from '@/types';
 import { defineStore } from 'pinia';
 import Vditor from 'vditor';
 import { ref } from 'vue';
-import { useFolderStore } from '../folder';
+import { useFolderStore } from '@/store/folder';
 import { NoteState } from './types';
 
 export const useNoteStore = defineStore('note', (): NoteState => {

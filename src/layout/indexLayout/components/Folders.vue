@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { delFolder } from '@/api/folder';
+import { delFolder, setFolder } from '@/api/folder';
 import IconBtn from '@/components/IconBtn.vue';
 import { useFolderStore, useNoteStore } from '@/store';
 import { FolderTree } from '@/types';
@@ -9,6 +9,8 @@ import { ref, watch } from 'vue';
 import RenameDialog from './FolderRenameDialog.vue';
 import AddDialog from './FolderAddDialog.vue';
 import { getNotRelevance } from '@/api/note';
+import { DropType } from 'element-plus/es/components/tree/src/tree.type';
+import Node from 'element-plus/es/components/tree/src/model/node';
 
 const folderStore = useFolderStore();
 const noteStore = useNoteStore();
@@ -50,6 +52,22 @@ const onCollapse = (folder: FolderTree) => {
   if (index > -1) folderStore.defaultExpandedKeys.splice(index, 1);
 };
 
+const onDrop = (
+  draggingNode: Node,
+  dropNode: Node,
+  dropType: 'inner' | 'before' | 'after',
+  ev: DragEvent
+) => {
+  if (dropType === 'inner') {
+    const parentId = dropNode.data.id;
+    setFolder(draggingNode.data.id, {parentId}).then(res => folderStore.refresh());
+  } else if (dropType === 'before' || dropType === 'after') {
+    const parent: FolderTree | null = folderStore.getParent(dropNode.data.id);
+    const parentId = parent ? parent.id : 0;
+    setFolder(draggingNode.data.id, {parentId}).then(res => folderStore.refresh());
+  }
+};
+
 // 文件夹过滤
 const treeRef = ref();
 const filterText = ref<string>('');
@@ -88,12 +106,13 @@ const dropdownCommand = (command: {name: string, id: number}) => {
     :data="folderStore.folderTree"
     :props="{label: 'name'}"
     node-key="id"
-    draggable
     :default-expanded-keys="folderStore.defaultExpandedKeys"
     :filter-node-method="filterNode"
+    draggable
     @node-click="onClick"
     @node-expand="onExpand"
     @node-collapse="onCollapse"
+    @node-drop="onDrop"
   >
     <template #default="{ node, data }">
       <span class="tree-node">

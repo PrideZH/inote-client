@@ -3,7 +3,7 @@ export interface UserInfo {
   username?: string;
   password?: string;
   nickname: string;
-  avatarUrl?: string;
+  avatarUrl: string | null;
   createTime?: Date;
   updateTime?: Date;
 }
