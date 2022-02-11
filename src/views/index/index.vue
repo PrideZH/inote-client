@@ -10,11 +10,6 @@ const noteStore = useNoteStore();
 onMounted(() => {
   // 关键字补齐(hint)暂不支持异步 [#1097](https://github.com/Vanessa219/vditor/pull/1097)
   let keyworks: {value: string, html: string}[] = [];
-  noteApi.getList().then(res => {
-    keyworks = res.data.map(note => ({
-      html: note.name, value: `[${note.name}](http://localhost:3001/index?n=${note.id})`
-    }));
-  });
 
   noteStore.editor = new Vditor('editor', {
     height: window.innerHeight - 40,
@@ -36,6 +31,11 @@ onMounted(() => {
           key: '@',
           hint: (key) => {
             if (key === '') return [];
+            noteApi.getList(20, 1, key).then(res => {
+              keyworks = res.data.records.map(note => ({
+                html: `${note.name} - inote_${note.id}`, value: `[${note.name}](http://localhost:3001/index?n=${note.id})`
+              }));
+            });
             key = key.toLocaleLowerCase();
             return keyworks.filter(keywork => keywork.html.toLocaleLowerCase().indexOf(key) === 0);
           },

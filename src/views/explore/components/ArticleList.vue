@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import articleApi from '@/api/article';
+import { openBlank } from '@/router';
 import { Page, ArticlePage } from '@/types';
 import { onMounted, ref } from 'vue';
 
@@ -22,7 +23,7 @@ const data = [
 const articles = ref<Page<ArticlePage>>();
 
 onMounted(() => {
-  articleApi.getList().then(res => {articles.value = res.data, console.log(res.data)});
+  articleApi.getList().then(res => articles.value = res.data);
 });
 </script>
 
@@ -43,7 +44,10 @@ onMounted(() => {
       <img :src="note.cover" />
     </div>
   </div>
-  <div class="note-box" v-for="article in articles?.records" :key="article.id">
+  <div class="note-box"
+    v-for="article in articles?.records" :key="article.id"
+    @click="openBlank(`/article/${article.id}`)"
+  >
     <div class="note-introduce">
       <div class="note-name">{{ article.title }}</div>
       <div class="note-content">{{ article.summary }}</div>

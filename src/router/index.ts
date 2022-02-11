@@ -42,6 +42,10 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/views/explore/index.vue')
       },
       {
+        path: 'article/:id',
+        component: () => import('@/views/article/index.vue')
+      },
+      {
         name: 'account',
         path: 'account',
         component: () => import('@/views/account/index.vue'),
@@ -72,7 +76,35 @@ const routes: Array<RouteRecordRaw> = [
             component: () => import('@/views/setting/picbed/index.vue')
           }
         ]
-      }
+      },
+      {
+        name: 'publish',
+        path: 'publish',
+        component: () => import('@/views/publish/index.vue'),
+        redirect: '/publish/home',
+        children: [
+          {
+            path: 'home',
+            component: () => import('@/views/publish/home/index.vue')
+          },
+          {
+            path: 'upload/:id',
+            component: () => import('@/views/publish/upload/index.vue')
+          },
+          {
+            path: 'note-manager',
+            component: () => import('@/views/publish/noteManager/index.vue')
+          },
+          {
+            path: 'article-manager',
+            component: () => import('@/views/publish/articleManager/index.vue')
+          },
+          {
+            path: 'comment-manager',
+            component: () => import('@/views/publish/commentManager/index.vue')
+          }
+        ]
+      },
     ]
   },
 

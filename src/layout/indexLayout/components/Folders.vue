@@ -8,7 +8,7 @@ import { ref, watch } from 'vue';
 import RenameDialog from './FolderRenameDialog.vue';
 import AddDialog from './FolderAddDialog.vue';
 import Node from 'element-plus/es/components/tree/src/model/node';
-import { folderApi, noteApi } from '@/api';
+import { folderApi } from '@/api';
 
 const folderStore = useFolderStore();
 const noteStore = useNoteStore();
@@ -150,6 +150,7 @@ const dropdownCommand = (command: {name: string, id: number}) => {
 
 .tree-node:hover .tree-operate {
   display: block;
+  margin-right: 16px;
 }
 
 .tree-operate {

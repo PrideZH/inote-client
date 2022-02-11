@@ -1,9 +1,23 @@
 <script setup lang="ts">
-import router from '@/router';
+import { logout } from '@/api/user';
+import router, { openBlank, push } from '@/router';
 import { useUserStore } from '@/store';
-import { isLogin } from '@/utils/auth';
+import { clearToken, isLogin } from '@/utils/auth';
 
 const userStore = useUserStore();
+
+const dropdownCommand = (command: string) => {
+  if (command === 'space') {
+    openBlank('/space')
+  } else if (command === 'article') {
+    openBlank('/publish')
+  } else if (command === 'logout') {
+    logout().then(res => {
+      clearToken();
+      push('/home');
+    });
+  }
+}
 </script>
 
 <template>
@@ -11,7 +25,16 @@ const userStore = useUserStore();
     <span class="logo-content" @click="router.push('/home')">iNote</span>
     <el-input />
     <div class="header-right">
-      <el-avatar :src="userStore.avatarUrl">inote</el-avatar>
+      <el-dropdown @command="dropdownCommand">
+        <el-avatar :src="userStore.avatarUrl">inote</el-avatar>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item command="space">个人空间</el-dropdown-item>
+            <el-dropdown-item command="article">文章管理</el-dropdown-item>
+            <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
       <el-button v-if="!isLogin()" @click="router.push('/home/login')">登录</el-button>
       <el-button v-else @click="router.push('/index')">工作区</el-button>
     </div>

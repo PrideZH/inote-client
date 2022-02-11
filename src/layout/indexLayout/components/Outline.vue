@@ -13,7 +13,16 @@ onMounted(() => {
 
 <style scoped>
 #outline {
-  height: calc(100vh - 110px);
+  height: calc(100vh - 88px);
   overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+#outline:hover {
+  overflow-x: scroll;
+}
+
+#outline >>> .vditor-outline {
+  width: fit-content;
 }
 </style>

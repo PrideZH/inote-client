@@ -28,6 +28,7 @@ export interface Note extends BaseEntity {
 
 export interface NotePage extends BaseEntity {
   name: string;
+  article: ArticleInfoPage | null;
 }
 
 /**
@@ -39,11 +40,30 @@ export interface NoteFolderInfo extends BaseEntity {
   noteId: number;
 }
 
+export interface ArticleOpen extends BaseEntity {
+  id: number;
+  content: string;
+  summary: string;
+  tagNames: string[];
+  title: string;
+}
+
 export interface ArticlePage extends BaseEntity {
-  title: string,
-  summary?: string,
-  coverUrl?: string,
+  title: string;
+  summary?: string;
+  coverUrl?: string;
   author: {
-    nickname: string
+    nickname: string;
   }
+}
+
+export interface ArticleInfoPage extends BaseEntity {
+  title: string;
+  summary: string;
+  close: boolean;
+}
+
+export interface TagPage extends BaseEntity {
+  name: string;
+  articleCount: number;
 }

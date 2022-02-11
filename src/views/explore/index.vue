@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import NoteList from './components/NoteList.vue';
+import ArticleList from './components/ArticleList.vue';
 import TagBox from './components/TagBox.vue';
 </script>
 
 <template>
   <div class="explore-container">
     <div class="left-box">
-      <NoteList />
+      <ArticleList />
     </div>
     <el-affix :offset="48">
       <div class="right-box">

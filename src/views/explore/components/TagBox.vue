@@ -1,5 +1,10 @@
 <script setup lang="ts">
-const tags = ['Java', 'C++', 'C#', 'Spirng', 'Javascript', 'Go', 'Vue', 'TypeScript']
+import { tagApi } from '@/api';
+import { TagPage } from '@/types';
+import { onMounted, ref } from 'vue';
+
+const tags = ref<TagPage[]>([]);
+onMounted(() => tagApi.getList(100, 1).then(res => tags.value = res.data.records))
 </script>
 
 <template>
@@ -7,7 +12,7 @@ const tags = ['Java', 'C++', 'C#', 'Spirng', 'Javascript', 'Go', 'Vue', 'TypeScr
     <div class="title">热门标签</div>
     <el-space wrap>
       <span class="tag-item" v-for="tag in tags">
-        {{ tag }}
+        {{ tag.name }}
       </span>
     </el-space>
   </div>

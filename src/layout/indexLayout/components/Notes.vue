@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import Vditor from 'vditor';
 import { MoreFilled } from '@element-plus/icons-vue';
-import { useNoteStore } from '@/store';
+import { useFolderStore, useNoteStore } from '@/store';
 import { NoteFolderInfo } from '@/types';
 import { noteApi } from '@/api';
 
 const noteStore = useNoteStore();
+const folderStore = useFolderStore();
 
 // 笔记节点样式
 const customNodeClass = (data: NoteFolderInfo) => {
@@ -43,19 +43,28 @@ const dropdownCommand = (command: {name: string, id: number}) => {
     @node-click="onClick"
   >
     <template #default="{ node, data }">
-      <span class="tree-node">
-        <span class="el-tree-node__label">{{ data.name }}</span>
-        <el-dropdown @command="dropdownCommand">
-          <el-icon class="tree-operate"><MoreFilled /></el-icon>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item :command="{name: 'copyLine', id: data.id}">复制链接</el-dropdown-item>
-              <el-dropdown-item divided :command="{name: 'update', id: data.id}">重命名</el-dropdown-item>
-              <el-dropdown-item :command="{name: 'delete', id: data.id}">删除</el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-      </span>
+      <el-tooltip
+        placement="bottom-start"
+        effect="light"
+        :content="`${folderStore.getPath(data.folderId)}\\${data.name}`"
+        :show-after="1000"
+        :show-arrow="false"
+        :enterable="false"
+      >
+        <span class="tree-node">
+          <span class="el-tree-node__label">{{ data.name }}</span>
+          <el-dropdown @command="dropdownCommand">
+            <el-icon class="tree-operate"><MoreFilled /></el-icon>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item :command="{name: 'copyLine', id: data.id}">复制链接</el-dropdown-item>
+                <el-dropdown-item divided :command="{name: 'update', id: data.id}">重命名</el-dropdown-item>
+                <el-dropdown-item :command="{name: 'delete', id: data.id}">删除</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </span>
+      </el-tooltip>
     </template>
   </el-tree>
 </template>
@@ -64,9 +73,7 @@ const dropdownCommand = (command: {name: string, id: number}) => {
 .tree-node {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   width: 100%;
-  padding-right: 24px;
   color: #777;
 }
 
@@ -94,6 +101,12 @@ const dropdownCommand = (command: {name: string, id: number}) => {
 
 .tree-node:hover .tree-operate {
   display: block;
+}
+
+.tree-node >>> .el-dropdown {
+  position: absolute;
+  right: 16px;
+  line-height: 16px;
 }
 
 .tree-operate {

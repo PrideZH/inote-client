@@ -2,13 +2,17 @@
   "name": "inote-client",
   "version": "0.0.0",
   "scripts": {
-    "dev": "vite",
+    "dev": "cross-env vite --mode development",
+    "product": "cross-env vite --mode production",
     "build": "vue-tsc --noEmit && vite build",
+    "build:dev": "cross-env vite build --mode development",
+    "build:product": "cross-env vite build --mode production",
     "preview": "vite preview"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^0.2.6",
     "axios": "^0.25.0",
+    "cross-env": "^7.0.3",
     "element-plus": "^2.0.1",
     "pinia": "^2.0.11",
     "vditor": "^3.8.11",

@@ -15,6 +15,7 @@ const noteStore = useNoteStore();
     <span class="info-text" v-if="noteStore.currentNote !== null">
       LUD: {{ noteStore.currentNote.updateTime }}
       NID: {{ noteStore.currentNote.name }}_inote_{{ noteStore.currentNote.id }}
+      <el-button type="primary" size="small">发布</el-button>
     </span>
   </div>
 </template>

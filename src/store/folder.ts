@@ -11,6 +11,18 @@ export const useFolderStore = defineStore('folder', () => {
   const refresh = () => folderApi.getFolderTree().then(res => folderTree.value = res.data);
   refresh();
 
+  const getPath = (id: number): string | null => {
+    const __getPath = (folders: FolderTree[], id: number): string | null => {
+      for (let i = 0; i < folders.length; i++) {
+        if (folders[i].id === id) return folders[i].name;
+        const res = __getPath(folders[i].children || [], id);
+        if (res !== null) return `${folders[i].name}\\${res}`;
+      }
+      return null;
+    }
+    return __getPath(folderTree.value, id);
+  }
+
   const getFolderById = (id: number): FolderTree | null => {
     const get = (folders: FolderTree[], id: number): FolderTree | null => {
       for (let i = 0; i < folders.length; i++) {
@@ -40,6 +52,7 @@ export const useFolderStore = defineStore('folder', () => {
     currentFolder,
     defaultExpandedKeys,
     refresh,
+    getPath,
     getFolderById,
     getParent
   };

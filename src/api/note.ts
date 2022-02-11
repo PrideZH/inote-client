@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { NoteFolderInfo, Note, NotePage } from '@/types';
+import { NoteFolderInfo, Note, NotePage, Page } from '@/types';
 
 export interface NoteData {
   name?: string;
@@ -17,8 +17,8 @@ const noteApi = {
     return axios.get<Note>(`/api/note/${id}`);
   },
 
-  getList() {
-    return axios.get<NotePage[]>('/api/note');
+  getList(size: number, page: number, keyword?: string) {
+    return axios.get<Page<NotePage>>('/api/note', { params: {size, page, keyword} });
   },
 
   set (id: number, noteData: NoteData) {
