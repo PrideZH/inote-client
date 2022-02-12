@@ -13,7 +13,7 @@ export const useUserStore = defineStore('user', () => {
 
   const avatarUrl = computed((): string => {
     if (userInfo.value !== null && userInfo.value.avatarUrl !== null) {
-      return `http://localhost:8080/${userInfo.value.avatarUrl}`;
+      return `${import.meta.env.VITE_APP_BASE_URL}/${userInfo.value.avatarUrl}`;
     } else {
       return '';
     }

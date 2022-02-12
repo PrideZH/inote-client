@@ -39,6 +39,10 @@ const folderApi = {
 
   del (id: number) {
     return axios.delete(`/api/folder/${id}`);
+  },
+
+  delRelevance (id: number) {
+    return axios.delete(`/api/folder/relevance/${id}`);
   }
 
 }

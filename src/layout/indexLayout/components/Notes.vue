@@ -2,7 +2,7 @@
 import { MoreFilled } from '@element-plus/icons-vue';
 import { useFolderStore, useNoteStore } from '@/store';
 import { NoteFolderInfo } from '@/types';
-import { noteApi } from '@/api';
+import { folderApi, noteApi } from '@/api';
 
 const noteStore = useNoteStore();
 const folderStore = useFolderStore();
@@ -30,6 +30,10 @@ const onClick = (note: NoteFolderInfo) => {
 const dropdownCommand = (command: {name: string, id: number}) => {
   if (command.name === 'copyLine') {
     console.log(command.id)
+  } else if (command.name === 'delete') {
+    folderApi.delRelevance(command.id).then(res => {
+      noteStore.refresh();
+    });
   }
 };
 </script>

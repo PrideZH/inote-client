@@ -10,6 +10,9 @@ const envResolve = (mode: string, env: string) => loadEnv(mode, process.cwd())[e
 // https://vitejs.dev/config/
 export default ({ command, mode }) =>{
   return defineConfig({
+    define: {
+      'process.env': process.env
+    },
     plugins: [
       vue(),
       AutoImport({
@@ -30,7 +33,7 @@ export default ({ command, mode }) =>{
       base: "./ ", //生产环境路径
       proxy: { // 本地开发环境通过代理实现跨域，生产环境使用 nginx 转发
         '^/api': {
-          target: envResolve(mode, 'VITE_BASE_URL'),
+          target: envResolve(mode, 'VITE_APP_BASE_URL'),
           changeOrigin: true, //开启代理
           secure: false,
           rewrite: (path) => path.replace('/^\/api/', '')

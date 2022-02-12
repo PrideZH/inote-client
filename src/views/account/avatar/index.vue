@@ -68,7 +68,7 @@ const onSuccess = (res: any) => {
       </el-upload>
       <el-divider direction="vertical" style="height: 64px; margin: 0 32px;" />
       <div class="introduce-avatar">
-        <el-avatar :src="'http://localhost:8080/' + userStore.userInfo?.avatarUrl" :size="80">inote</el-avatar>
+        <el-avatar :src="userStore.avatarUrl" :size="80">inote</el-avatar>
         <div class="introduce-avatar-text">当前头像</div>
       </div>
     </div>

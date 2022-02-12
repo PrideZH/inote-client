@@ -18,8 +18,12 @@ const onConfirm = () => {
   loading.value = true;
   noteApi.add(form.value).then(res => {
     noteStore.refresh();
-    loading.value = false;
     visible.value = false;
+    loading.value = false;
+    // 打开新建笔记
+    noteApi.get(res.data.noteId as number).then(res => {
+      noteStore.push(res.data, true);
+    });
   }).catch(err => {
     loading.value = false;
   });
@@ -34,7 +38,7 @@ defineExpose({ open });
 </script>
 
 <template>
-  <el-dialog v-model="visible" title="添加笔记">
+  <el-dialog v-model="visible" title="新建笔记">
     <el-form :model="form">
       <el-form-item label="笔记名">
         <el-input v-model="form.name" @keydown.enter.prevent="onConfirm" />

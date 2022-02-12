@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useAppStore, useFolderStore, useUserStore } from '@/store';
+import { useAppStore, useFolderStore, useNoteStore, useUserStore } from '@/store';
 import { computed, onMounted, ref } from 'vue';
 import { DArrowLeft, DArrowRight, Folder, Plus } from '@element-plus/icons-vue';
 import Folders from './components/Folders.vue';
@@ -10,12 +10,16 @@ import { getUserInfo, logout } from '@/api/user';
 import AddDialog from './components/NoteAddDialog.vue';
 import { openBlank, push } from '@/router';
 import { clearToken } from '@/utils/auth';
+import { folderApi, noteApi } from '@/api';
+import { NoteFolderInfo, NotePage, Page } from '@/types';
 
 const addDialogRef = ref<InstanceType<typeof AddDialog>>();
 
 const appStore = useAppStore();
 const userStore = useUserStore();
+const noteStore = useNoteStore();
 const folderStore = useFolderStore();
+
 const menuWidth = computed(() => {
   return appStore.isCollapse ? 64 : 200;
 });
@@ -39,6 +43,40 @@ const dropdownCommand = (command: string) => {
     });
   }
 }
+
+// 引用笔记
+const addOptionalNotes = ref<Page<NotePage>>();
+const quoteCheckedNote = ref<NotePage[]>([]);
+const quoteVisible = ref<boolean>(false);
+const quoteLoading = ref<boolean>(false);
+const onQuoteOk = () => {
+  if (folderStore.currentFolder === null) return;
+  if (quoteCheckedNote.value.length === 0) return;
+  quoteLoading.value = true;
+  const note = quoteCheckedNote.value[0];
+  folderApi.addRelevance({ name: note.name, noteId: note.id, folderId: folderStore.currentFolder.id }).then(res => {
+    quoteLoading.value = false;
+    quoteVisible.value = false;
+    noteStore.refresh();
+  }).catch(err => {
+    quoteLoading.value = false;
+  });
+};
+
+const plusDropdownCommand = (command: string) => {
+  if (command === 'quote') {
+    noteApi.getList(100, 1).then(res => {
+      addOptionalNotes.value = res.data;
+      // 排除已存在笔记 不需要添加
+      let currentNoteIds = noteStore.notes.map((item: NoteFolderInfo) => item.noteId);
+      const notes: NotePage[] = addOptionalNotes.value.records;
+      addOptionalNotes.value.records = notes.filter(note => !currentNoteIds.includes(note.id));
+    });
+    quoteVisible.value = true;
+  } else if (command === 'create') {
+    addDialogRef.value?.open(folderStore.currentFolder === null ? 0 : folderStore.currentFolder.id)
+  }
+};
 
 onMounted(() => {
   getUserInfo().then(res => userStore.userInfo = res.data);
@@ -85,12 +123,15 @@ onMounted(() => {
             <el-icon v-else><DArrowLeft /></el-icon>
           </IconBtn>
           {{ folderStore.currentFolder?.name }}
-          <IconBtn
-            content="新建笔记"
-            @click="addDialogRef?.open(folderStore.currentFolder === null ? 0 : folderStore.currentFolder.id)"
-          >
-            <el-icon><Plus /></el-icon>
-          </IconBtn>
+          <el-dropdown @command="plusDropdownCommand">
+            <IconBtn><el-icon><Plus /></el-icon></IconBtn>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="quote">添加笔记</el-dropdown-item>
+                <el-dropdown-item command="create">新建笔记</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </div>
       </div>
       <router-view class="main" />
@@ -98,6 +139,20 @@ onMounted(() => {
   </el-container>
 
   <AddDialog ref="addDialogRef" />
+
+  <el-dialog v-model="quoteVisible" title="添加笔记">
+    <el-checkbox-group v-model="quoteCheckedNote" :max="1">
+      <el-checkbox v-for="note in addOptionalNotes?.records" :key="note.id" :label="note">
+        {{ note.name }} | inote_{{ note.id }}
+      </el-checkbox>
+  </el-checkbox-group>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="quoteVisible = false">取消</el-button>
+        <el-button type="primary" :loading="quoteLoading" @click="onQuoteOk">确定</el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <style>

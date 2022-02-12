@@ -25,7 +25,9 @@ const noteStore = useNoteStore();
   display: flex;
   align-items: center;
   justify-content: space-between;
+  min-height: 40px;
   padding: 0 32px;
+  white-space: nowrap;
 }
 
 .info-text {

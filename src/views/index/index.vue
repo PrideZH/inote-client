@@ -1,18 +1,33 @@
 <script setup lang="ts">
 import { noteApi } from '@/api';
 import { useNoteStore } from '@/store';
+import { NotePage } from '@/types';
 import Vditor from 'vditor';
 import { onMounted } from 'vue';
 import Header from './components/Header.vue';
 
 const noteStore = useNoteStore();
 
-onMounted(() => {
-  // 关键字补齐(hint)暂不支持异步 [#1097](https://github.com/Vanessa219/vditor/pull/1097)
-  let keyworks: {value: string, html: string}[] = [];
+const getNoteLinks = (query: string) => {
+  let result: {value: string, html: string}[] = [];
+  const xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState !== 4 || xhr.status !== 200) {
+      return;
+    }
+    const res = JSON.parse(xhr.responseText);
+    result = res.data.records.map((note: NotePage) => ({
+      html: `${note.name} - inote_${note.id}`, value: `[${note.name}](http://localhost:3001/index?n=${note.id})\xa0`
+    }));
+  };
+  xhr.open('get', `/api/note?size=100&page=1&keyword=${query}`, false);
+  xhr.send(null);
+  return result;
+}
 
+onMounted(() => {
   noteStore.editor = new Vditor('editor', {
-    height: window.innerHeight - 40,
+    height: '100%',
     cache: {
       enable: false // 关闭缓存
     },
@@ -31,13 +46,7 @@ onMounted(() => {
           key: '@',
           hint: (key) => {
             if (key === '') return [];
-            noteApi.getList(20, 1, key).then(res => {
-              keyworks = res.data.records.map(note => ({
-                html: `${note.name} - inote_${note.id}`, value: `[${note.name}](http://localhost:3001/index?n=${note.id})`
-              }));
-            });
-            key = key.toLocaleLowerCase();
-            return keyworks.filter(keywork => keywork.html.toLocaleLowerCase().indexOf(key) === 0);
+            return getNoteLinks(key);
           },
         }
       ]
@@ -93,5 +102,9 @@ onMounted(() => {
 #editor {
   border: none;
   height: calc(100% - 40px);
+}
+
+#editor >>> .vditor-reset {
+  padding: 12px 64px !important;
 }
 </style>
