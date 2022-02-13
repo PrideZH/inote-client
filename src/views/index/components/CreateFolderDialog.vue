@@ -1,47 +1,46 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
-import { useFolderStore } from '@/store';
-import { FolderTree } from '@/types';
 import { folderApi } from '@/api';
+import { DirectoryNode } from '@/types';
+import { ref } from 'vue';
 
-const folderStore = useFolderStore();
-
-const form = reactive<{
-  id: number,
-  name: string
-}>({
-  id: 0,
-  name: '',
-});
+const __formDefault = { name: '', parentId: 0 };
+const form = ref<{
+  name: string,
+  parentId: number
+}>({...__formDefault});
 
 const visible = ref<boolean>(false);
 const loading = ref<boolean>(false);
 
+// 成功回调函数
+let OkCallBack: ((node: DirectoryNode) => {}) | null = null;
+
 const onConfirm = () => {
   loading.value = true;
-  folderApi.set(form.id, { name: form.name }).then(res => {
-    folderStore.refresh();
+  folderApi.add(form.value).then(res => {
     loading.value = false;
     visible.value = false;
+    if (OkCallBack !== null) {
+      OkCallBack(res.data);
+    }
   }).catch(err => {
     loading.value = false;
   });
 };
 
-const open = (id: number) => {
-  const folder: FolderTree | null = folderStore.getFolderById(id);
-  if (folder === null) return;
-  form.id = folder.id as number;
-  form.name = folder.name as string;
+const open = (parentId: number, _OkCallBack: ((node: DirectoryNode) => {}) | null = null) => {
+  OkCallBack = _OkCallBack;
+  form.value = {...__formDefault};
+  form.value.parentId = parentId;
   visible.value = true;
 };
 defineExpose({ open });
 </script>
 
 <template>
-  <el-dialog v-model="visible" title="添加文件夹">
+  <el-dialog v-model="visible" title="新建文件夹">
     <el-form :model="form">
-      <el-form-item prop="name" label="文件夹名">
+      <el-form-item label="文件夹名">
         <el-input v-model="form.name" @keydown.enter.prevent="onConfirm" />
       </el-form-item>
     </el-form>

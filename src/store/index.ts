@@ -1,10 +1,10 @@
 import { createPinia } from 'pinia';
-import { useAppStore } from './modules/app';
+import { useAppStore } from './app';
 import { useUserStore } from './user';
-import { useFolderStore } from './folder';
+import { useDirStore } from './directory';
 import { useNoteStore } from './note';
 
 const pinia = createPinia();
 
-export { useAppStore, useUserStore, useFolderStore, useNoteStore };
+export { useAppStore, useDirStore, useNoteStore, useUserStore };
 export default pinia;

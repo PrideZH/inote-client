@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { NoteFolderInfo, Note, NotePage, Page } from '@/types';
+import { DirectoryNode, Note, NotePage, Page } from '@/types';
 
 export interface NoteData {
   name?: string;
@@ -10,7 +10,7 @@ export interface NoteData {
 const noteApi = {
 
   add (noteData: NoteData) {
-    return axios.post<NoteFolderInfo>('/api/note/me', noteData);
+    return axios.post<DirectoryNode>('/api/note/me', noteData);
   },
 
   get (id: number) {

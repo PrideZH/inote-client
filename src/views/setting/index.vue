@@ -35,8 +35,8 @@ const onSelect = (index: string) => activeIndex.value = index;
 
 <style scoped>
 .setting-container {
+  flex: 1;
   display: flex;
-  padding: 0 160px;
   box-sizing: border-box;
 }
 

@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { noteApi } from '@/api';
-import { useNoteStore } from '@/store';
+import { DirectoryNode } from '@/types';
 import { ref } from 'vue';
-
-const noteStore = useNoteStore();
 
 const __formDefault = { name: '', folderId: 0 };
 const form = ref<{
@@ -14,22 +12,25 @@ const form = ref<{
 const visible = ref<boolean>(false);
 const loading = ref<boolean>(false);
 
+// 成功回调函数
+let OkCallBack: ((node: DirectoryNode) => {}) | null = null;
+
 const onConfirm = () => {
   loading.value = true;
+
   noteApi.add(form.value).then(res => {
-    noteStore.refresh();
     visible.value = false;
     loading.value = false;
-    // 打开新建笔记
-    noteApi.get(res.data.noteId as number).then(res => {
-      noteStore.push(res.data, true);
-    });
+    if (OkCallBack !== null) {
+      OkCallBack(res.data);
+    }
   }).catch(err => {
     loading.value = false;
   });
 };
 
-const open = (folderId: number) => {
+const open = (folderId: number, _OkCallBack: ((node: DirectoryNode) => {}) | null = null) => {
+  OkCallBack = _OkCallBack;
   form.value = {...__formDefault};
   form.value.folderId = folderId;
   visible.value = true;

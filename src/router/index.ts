@@ -29,6 +29,18 @@ const routes: Array<RouteRecordRaw> = [
         path: '',
         component: () => import('@/views/index/index.vue')
       },
+      {
+        name: 'setting',
+        path: 'setting',
+        component: () => import('@/views/setting/index.vue'),
+        redirect: '/index/setting/picbed',
+        children: [
+          {
+            path: 'picbed',
+            component: () => import('@/views/setting/picbed/index.vue')
+          }
+        ]
+      },
     ]
   },
   {
@@ -62,18 +74,6 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: 'avatar',
             component: () => import('@/views/account/avatar/index.vue')
-          }
-        ]
-      },
-      {
-        name: 'setting',
-        path: 'setting',
-        component: () => import('@/views/setting/index.vue'),
-        redirect: '/setting/picbed',
-        children: [
-          {
-            path: 'picbed',
-            component: () => import('@/views/setting/picbed/index.vue')
           }
         ]
       },

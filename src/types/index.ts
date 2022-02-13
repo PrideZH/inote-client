@@ -10,14 +10,20 @@ export interface Page<T> {
   pages: number;
 }
 
+// 目录数据
+export interface DirectoryNode {
+  id: number;
+  dirId: string;
+  name: string;
+  parentId: number;
+  noteId?: number;
+  note: boolean;
+  children?: DirectoryNode[]
+}
+
 export interface Folder extends BaseEntity {
   name?: string;
   parentId?: number;
-}
-
-export interface FolderTree extends BaseEntity {
-  name: string;
-  children: FolderTree[];
 }
 
 export interface Note extends BaseEntity {
@@ -29,15 +35,6 @@ export interface Note extends BaseEntity {
 export interface NotePage extends BaseEntity {
   name: string;
   article: ArticleInfoPage | null;
-}
-
-/**
- * 笔记栏数据
- */
-export interface NoteFolderInfo extends BaseEntity {
-  name: string;
-  folderId: number;
-  noteId: number;
 }
 
 export interface ArticleOpen extends BaseEntity {

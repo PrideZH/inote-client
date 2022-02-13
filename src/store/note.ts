@@ -1,26 +1,23 @@
 import Vditor from 'vditor';
-import { Note, NoteFolderInfo } from '@/types';
+import { Note } from '@/types';
 import { defineStore } from 'pinia';
 import { computed, nextTick, ref } from 'vue';
-import { folderApi, noteApi } from '@/api';
-import { useFolderStore } from '.';
+import { noteApi } from '@/api';
 
+// 保存笔记相关信息
 export const useNoteStore = defineStore('note', () => {
-  const notes = ref<NoteFolderInfo[]>([]);
+
+  // 当前打开的所有笔记
   const currentNotes = ref<Note[]>([]);
+  // 正在浏览的笔记 即最后一个笔记
   const currentNote = computed(() => {
     return currentNotes.value.length === 0 ? null : currentNotes.value[currentNotes.value.length - 1];
   });
+  // 编辑器
   const editor = ref<Vditor | null>(null);
+  // 是否被修改
   const isAlter = ref<boolean>(false);
 
-  const refresh = () => {
-    const folderStore = useFolderStore();
-    if (folderStore.currentFolder !== null) {
-      folderApi.getRelevance(folderStore.currentFolder.id).then(res => notes.value = res.data);
-    }
-  };
-  refresh();
 
   // 保存当前笔记
   const saveCurrentNote = () => {
@@ -34,10 +31,6 @@ export const useNoteStore = defineStore('note', () => {
     }
   };
 
-  // 获取指定文件夹下的所有笔记 0-未分类文件夹
-  const show = (folderId: number) => {
-    folderApi.getRelevance(folderId).then(res => notes.value = res.data);
-  };
 
   // 链接点击事件
   const linkClickEvent = (e: Event) => {
@@ -67,6 +60,7 @@ export const useNoteStore = defineStore('note', () => {
       }
     }
   };
+  // 渲染笔记跳转链接
   const __renderVditorLink = () => {
     const linkElements: any = document.getElementsByClassName('vditor-ir__link');
     for (let i = 0; i < linkElements.length; i++) {
@@ -96,24 +90,14 @@ export const useNoteStore = defineStore('note', () => {
     isAlter.value = false;
     // 添加链接点击事件
     nextTick(() => __renderVditorLink());
-  };
+  }
 
+  // 输入回调
   const inputCallback = () => {
     isAlter.value = true;
 
     __renderVditorLink();
   }
 
-  return {
-    editor,
-    notes,
-    currentNotes,
-    currentNote,
-    isAlter,
-    show,
-    refresh,
-    saveCurrentNote,
-    push,
-    inputCallback
-  };
+  return { currentNotes, currentNote, editor, isAlter, saveCurrentNote, push, inputCallback }
 });

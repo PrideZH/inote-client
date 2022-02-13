@@ -1,7 +1,7 @@
+import { DirectoryNode } from '@/types';
 import axios from 'axios';
-import { FolderTree, NoteFolderInfo } from '@/types';
 
-export interface FolderData {
+export interface DirectoryData {
   name?: string;
   parentId?: number;
 }
@@ -14,27 +14,32 @@ export interface RelevanceData {
 
 const folderApi = {
 
-  add (folderData: FolderData) {
-    return axios.post<FolderTree>('/api/folder/me', folderData);
+  add (folderData: DirectoryData) {
+    return axios.post<DirectoryNode>('/api/folder/me', folderData);
   },
 
   /**
    * 添加笔记与文件夹的关联
    */
   addRelevance (relevanceData: RelevanceData) {
-    return axios.post<NoteFolderInfo>('/api/folder/relevance', relevanceData);
+    return axios.post<DirectoryNode>('/api/folder/relevance', relevanceData);
   },
 
-  getFolderTree () {
-    return axios.get<FolderTree[]>('/api/folder/me/tree');
+  getDirectory (id: number) {
+    return axios.get<DirectoryNode[]>(`/api/folder/${id}/me/directory`);
   },
 
-  getRelevance (id: number) {
-    return axios.get<NoteFolderInfo[]>(`/api/folder/${id}/relevance`);
+  getNotRelevance () {
+    return axios.get<DirectoryNode[]>(`/api/folder/notRelevance`);
   },
 
-  set (id: number, folderData: FolderData) {
-    return axios.patch<FolderTree>(`/api/folder/${id}`, folderData);
+  set (id: number, dirData: DirectoryData) {
+    return axios.patch<DirectoryNode>(`/api/folder/${id}`, dirData);
+  },
+
+  // 修改关联笔记文件
+  setRelevance (id: number, dirData: DirectoryData) {
+    return axios.patch<DirectoryNode>(`/api/folder/relevance/${id}`, dirData);
   },
 
   del (id: number) {

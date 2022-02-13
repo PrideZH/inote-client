@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { noteApi } from '@/api';
 import { useNoteStore } from '@/store';
-import { NotePage } from '@/types';
 import Vditor from 'vditor';
 import { onMounted } from 'vue';
+import { NotePage } from '@/types';
+
 import Header from './components/Header.vue';
+import Directory from './components/Directory.vue';
 
 const noteStore = useNoteStore();
 
+// 异步获取补齐文件跳转链接
 const getNoteLinks = (query: string) => {
   let result: {value: string, html: string}[] = [];
   const xhr = new XMLHttpRequest();
@@ -33,13 +35,9 @@ onMounted(() => {
     },
     outline: {
       enable: true,
-      position: 'left'
+      position: 'right'
     },
     input: () => noteStore.inputCallback(),
-    after: () => {
-      // 设置大纲到侧边栏下
-      document.getElementById('outline')?.append(document.getElementsByClassName('vditor-outline')[0]);
-    },
     hint: {
       extend: [
         {
@@ -56,6 +54,12 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="note-aside">
+    <Directory />
+    <div class="note-tool">
+
+    </div>
+  </div>
   <div class="note-container">
     <Header class="header" />
     <div v-show="noteStore.currentNote !== null" id="editor" @keydown.ctrl.s.prevent="noteStore.saveCurrentNote()" />
@@ -65,10 +69,6 @@ onMounted(() => {
 <style>
 .vditor-toolbar {
   display: none;
-}
-
-.vditor-outline {
-  width: 100%;
 }
 
 .vditor-outline .vditor-outline__title{
@@ -89,6 +89,7 @@ onMounted(() => {
 </style>
 <style scoped>
 .note-container {
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
@@ -106,5 +107,19 @@ onMounted(() => {
 
 #editor >>> .vditor-reset {
   padding: 12px 64px !important;
+}
+
+.note-aside {
+  display: flex;
+  flex-direction: column;
+  width: 180px;
+  background-color: #fafafa;
+}
+
+.note-tool {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #eee;
 }
 </style>

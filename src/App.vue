@@ -48,5 +48,6 @@ body, #app {
 {
 	border-radius: 10px;
 	background-color: #555;
+  cursor: auto;
 }
 </style>
