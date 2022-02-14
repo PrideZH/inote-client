@@ -75,8 +75,6 @@ onMounted(() => {
             <div class="info">
               <div>笔记ID</div>
               <div>{{ noteStore.currentNote.name }}_inote_{{ noteStore.currentNote.id }}</div>
-              <div>文章</div>
-              <div>未上传</div>
               <div>编辑时间</div>
               <div>{{ noteStore.currentNote.createTime }}</div>
               <div>修改时间</div>
@@ -102,7 +100,7 @@ onMounted(() => {
 }
 
 .vditor-outline li>span:hover {
-    color: #4285f4;
+  color: #4285f4;
 }
 
 .vditor-outline svg {

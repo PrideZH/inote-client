@@ -92,6 +92,10 @@ const routes: Array<RouteRecordRaw> = [
             component: () => import('@/views/publish/upload/index.vue')
           },
           {
+            path: 'article/:id',
+            component: () => import('@/views/publish/article/index.vue')
+          },
+          {
             path: 'note-manager',
             component: () => import('@/views/publish/noteManager/index.vue')
           },

@@ -7,7 +7,7 @@ import router, { openBlank, push } from '@/router';
 import { clearToken } from '@/utils/auth';
 import { getUserInfo, logout } from '@/api/user';
 
-import { Compass, Delete, Folder, Setting, Timer } from '@element-plus/icons-vue';
+import { Compass, Delete, Folder, Management, Setting, Timer } from '@element-plus/icons-vue';
 
 const appStore = useAppStore();
 const userStore = useUserStore();
@@ -53,6 +53,9 @@ onMounted(() => {
         <div class="bottom-menu">
           <el-tooltip content="探索" placement="right">
             <div class="menu-item" @click="openBlank('/explore')"><el-icon><Compass /></el-icon></div>
+          </el-tooltip>
+          <el-tooltip content="笔记管理" placement="right">
+            <div class="menu-item" @click="openBlank('/publish/note-manager')"><el-icon><Management /></el-icon></div>
           </el-tooltip>
           <el-tooltip content="设置" placement="right">
             <div class="menu-item" @click="router.replace('/index/setting')"><el-icon><Setting /></el-icon></div>

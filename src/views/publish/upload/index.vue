@@ -1,53 +1,118 @@
 <script setup lang="ts">
 import { articleApi, noteApi } from '@/api';
+import { ArticleOpen, Note } from '@/types';
+import { ElMessage } from 'element-plus';
 import Vditor from 'vditor';
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { diff_match_patch } from '@/utils/diff_match_patch';
 
 const route = useRoute();
 const router = useRouter();
 
 // 网页参数
-const type: 'add' | 'edit' = 'add'; // 默认为发布
-const noteId: number = Number(route.params.id); // 传入笔记ID进行发布
-const article: number = 0; // 输入文章ID进行编辑
+const noteId: number = Number(route.params.id);
+
+const diff = ref<any[] | null>(null);
+let isAlter: boolean = false;
+
+const note = ref<Note>();
+const article = ref<ArticleOpen>();
+const loading = ref<boolean>(false);
+const contentLoading = ref<boolean>(false);
 
 const form = reactive<{
-  id: number | null,
-  noteId: number | null,
-  title: string,
-  summary: string,
-  coverUrl: string | null,
+  coverUrl: string | null;
+  noteId: number;
+  summary: string | null;
+  tags: string[];
+  title: string;
 }>({
-  id: null,
-  noteId: null,
-  title: '',
+  coverUrl: '',
+  noteId: 0,
   summary: '',
-  coverUrl: null,
-});
-const noteContent = ref<string>('');
-const articleContent = ref<string>('');
-const loading = ref<boolean>(false);
+  tags: [],
+  title: ''
+})
 
 const onClick = () => {
-
+  if (article.value !== undefined) {
+    articleApi.set(article.value.id, {
+      coverUrl: form.coverUrl ? form.coverUrl : undefined,
+      summary: form.summary ? form.summary : undefined,
+      tags: form.tags.length !== 0 ? form.tags : undefined,
+      title: form.title
+    }).then(res => {
+      ElMessage.info('保存成功');
+    });
+  } else {
+    articleApi.add({
+      coverUrl: form.coverUrl ? form.coverUrl : undefined,
+      noteId: form.noteId,
+      summary: form.summary ? form.summary : undefined,
+      tags: form.tags.length !== 0 ? form.tags : undefined,
+      title: form.title
+    }).then(res => {
+      ElMessage.success('发布成功');
+    });
+  }
 }
 
-const getContent = () => {
-  const preview: HTMLElement | null = document.getElementById('preview');
-  if (preview !== null) {
-    Vditor.preview(preview as HTMLDivElement, noteContent.value);
+const updateContent = () => {
+  if (article.value === undefined) return;
+  if (isAlter) {
+    contentLoading.value = true;
+    articleApi.set(article.value.id, { noteId: note.value?.id }).then(res => {
+      contentLoading.value = false;
+      ElMessage.success('更新成功');
+    });
+  } else {
+    ElMessage.info('当前状态已为最新');
   }
+};
+
+const collapse = ref<boolean>(false); // 是否展开文件对比
+const getContent = () => {
+  collapse.value = true;
+  nextTick(() => {
+    if (diff.value != null) {
+      for (let i = 0; i < diff.value.length; i++) {
+        if (diff.value[i][0] !== 0) isAlter = true;
+        const preview: HTMLElement | null = document.getElementById('preview' + i);
+        Vditor.preview(preview as HTMLDivElement, diff.value[i][1]);
+      }
+    }
+  });
 }
 
 onMounted(() => {
   if (isNaN(noteId)) {
     router.replace('/explore/404')
   }
+
+  const dmp = new (diff_match_patch as any)();
+
+  form.noteId = noteId;
   noteApi.get(noteId).then(res => {
-    form.noteId = res.data.id;
-    form.title = res.data.name;
-    noteContent.value = res.data.content;
+    note.value = res.data;
+    // 若文章存在 即笔记已发布 则获取文章信息
+    if (note.value.articleId !== null) {
+      articleApi.get(note.value.articleId).then(res => {
+        article.value = res.data;
+        // form.coverUrl =
+        form.title = article.value.title;
+        form.summary = article.value.summary;
+        form.tags = article.value.tagNames;
+
+        diff.value = dmp.diff_main(article.value.content, note.value?.content);
+        dmp.diff_cleanupSemantic(diff.value);
+      });
+    } else {
+      form.title = note.value.name;
+
+      diff.value = dmp.diff_main('', note.value?.content);
+        dmp.diff_cleanupSemantic(diff.value);
+    }
   }).catch(err => {
     console.log(err);
   });
@@ -66,12 +131,39 @@ onMounted(() => {
       <el-input type="textarea" v-model="form.summary" placeholder="简介" />
     </el-form-item>
     <el-form-item>
-      <el-button type="primary" @click="onClick" :loading="loading">上传</el-button>
+      <el-button type="primary" @click="onClick" :loading="loading">
+        {{ article !== undefined ? '保存修改' : '上传' }}
+      </el-button>
+      <el-button v-if="article !== undefined" type="primary" @click="updateContent" :loading="contentLoading">
+        更新文章内容
+      </el-button>
     </el-form-item>
   </el-form>
   <el-collapse>
     <el-collapse-item title="详细修改内容信息" @click.once="getContent">
-      <div id="preview" />
+      <div v-if="collapse">
+        <div
+          :class="{ preview: true, delete: item[0] === -1, equal: item[0] === 0, insert: item[0] === 1 }"
+          :id="'preview' + index"
+          v-for="(item, index) in diff" :key="index"
+        >
+          {{ 'preview' + index }}
+        </div>
+      </div>
     </el-collapse-item>
   </el-collapse>
 </template>
+
+<style scoped>
+.preview {
+  padding: 4px 32px;
+}
+
+.delete {
+  background-color: #ffdddd
+}
+
+.insert {
+  background-color: #ccffdd;
+}
+</style>

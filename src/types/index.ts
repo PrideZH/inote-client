@@ -29,7 +29,7 @@ export interface Folder extends BaseEntity {
 export interface Note extends BaseEntity {
   name: string;
   content: string;
-  article?: number;
+  articleId: number | null;
 }
 
 export interface NotePage extends BaseEntity {
@@ -52,6 +52,12 @@ export interface ArticlePage extends BaseEntity {
   author: {
     nickname: string;
   }
+}
+
+export interface ArticleInfo extends BaseEntity {
+  title: string;
+  summary: string;
+  close: boolean;
 }
 
 export interface ArticleInfoPage extends BaseEntity {

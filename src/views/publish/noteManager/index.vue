@@ -34,7 +34,9 @@ noteApi.getList(10, 1).then(res => noteList.value = res.data);
         >
           未发布
         </el-button>
-        <el-button v-else type="text" size="small">查看</el-button>
+        <el-button v-else type="text" size="small" @click="router.push(`/publish/article/${scope.row.article.id}`)">
+          {{ scope.row.article.title }}
+        </el-button>
       </template>
     </el-table-column>
     <el-table-column fixed="right" label="操作" width="120">
