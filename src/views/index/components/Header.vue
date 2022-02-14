@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { useNoteStore } from '@/store';
-import { ArrowRight } from '@element-plus/icons-vue'
+import { useAppStore, useNoteStore } from '@/store';
+import { ArrowRight, FullScreen, Minus } from '@element-plus/icons-vue'
+import IconBtn from '@/components/IconBtn.vue';
 
+const appStore = useAppStore();
 const noteStore = useNoteStore();
 </script>
 
@@ -12,6 +14,14 @@ const noteStore = useNoteStore();
         <a @click="noteStore.push(note)">{{ note.name }}</a>
       </el-breadcrumb-item>
     </el-breadcrumb>
+    <div>
+      <IconBtn v-if="noteStore.currentNote !== null" @click="appStore.fullscreen = !appStore.fullscreen">
+        <el-icon>
+          <FullScreen v-if="!appStore.fullscreen"/>
+          <Minus v-else />
+        </el-icon>
+      </IconBtn>
+    </div>
   </div>
 </template>
 

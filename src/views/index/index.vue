@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useNoteStore } from '@/store';
+import { useAppStore, useNoteStore } from '@/store';
 import Vditor from 'vditor';
 import { onMounted } from 'vue';
 import { NotePage } from '@/types';
@@ -7,6 +7,7 @@ import { NotePage } from '@/types';
 import Header from './components/Header.vue';
 import Directory from './components/Directory.vue';
 
+const appStore = useAppStore();
 const noteStore = useNoteStore();
 
 // 异步获取补齐文件跳转链接
@@ -58,7 +59,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="note-aside">
+  <div class="note-aside" v-show="!appStore.fullscreen">
     <Directory />
     <div class="note-tool">
 
@@ -68,7 +69,7 @@ onMounted(() => {
     <Header class="header" />
     <div class="note-main">
       <div v-show="noteStore.currentNote !== null" id="editor" @keydown.ctrl.s.prevent="noteStore.saveCurrentNote()" />
-      <div class="note-detail" v-show="noteStore.currentNote !== null">
+      <div class="note-detail" v-show="!appStore.fullscreen && noteStore.currentNote !== null">
         <el-collapse accordion>
           <el-collapse-item v-if="noteStore.currentNote !== null" title="笔记信息" name="info">
             <div class="info">
@@ -81,9 +82,6 @@ onMounted(() => {
               <div>修改时间</div>
               <div>{{ noteStore.currentNote.updateTime }}</div>
             </div>
-            <!-- LUD: {{ noteStore.currentNote.updateTime }}
-            NID: {{ noteStore.currentNote.name }}_inote_{{ noteStore.currentNote.id }}
-            <el-button type="primary" size="small">发布</el-button> -->
           </el-collapse-item>
           <el-collapse-item title="笔记大纲" name="outline">
             <div id="outline" />
@@ -134,12 +132,14 @@ onMounted(() => {
 
 .note-detail {
   width: 200px;
+  background-color: #fafafa;
 }
 
 .note-detail >>> .el-collapse-item__header {
-  line-height: 22px;
   height: 22px;
+  line-height: 22px;
   font-weight: 700;
+  background-color: #fafafa;
 }
 
 .note-detail >>> .el-collapse-item__content {
@@ -148,12 +148,19 @@ onMounted(() => {
 }
 
 .info {
+  height: 99%;
   padding: 4px 8px;
+  background-color: #fafafa;
 }
 
 #outline {
-  overflow-y: scroll;
-  height: 100%;
+  height: 99%;
+  overflow: hidden;
+  background-color: #fafafa;
+}
+
+#outline:hover {
+  overflow: scroll;
 }
 
 #editor {

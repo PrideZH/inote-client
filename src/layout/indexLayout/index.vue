@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { onMounted} from 'vue';
 
-import { useUserStore } from '@/store';
+import { useAppStore, useUserStore } from '@/store';
 import router, { openBlank, push } from '@/router';
 
 import { clearToken } from '@/utils/auth';
 import { getUserInfo, logout } from '@/api/user';
 
-import { Compass, Folder, Setting } from '@element-plus/icons-vue';
+import { Compass, Delete, Folder, Setting, Timer } from '@element-plus/icons-vue';
 
+const appStore = useAppStore();
 const userStore = useUserStore();
 
 const onLogout = () => {
@@ -25,7 +26,7 @@ onMounted(() => {
 
 <template>
   <el-container class="container">
-    <el-aside class="aside" width="64px">
+    <el-aside class="aside" width="64px" v-show="!appStore.fullscreen">
       <el-popover placement="right-end" trigger="click">
         <template #reference>
           <el-avatar class="introduce-avatar" :src="userStore.avatarUrl">inote</el-avatar>
@@ -39,11 +40,23 @@ onMounted(() => {
       </el-popover>
       <div class="menu">
         <div class="top-menu">
-          <div class="menu-item" @click="router.replace('/index')"><el-icon><Folder /></el-icon></div>
+          <el-tooltip content="云文件" placement="right">
+            <div class="menu-item" @click="router.replace('/index')"><el-icon><Folder /></el-icon></div>
+          </el-tooltip>
+          <el-tooltip content="最近编辑" placement="right">
+            <div class="menu-item" @click=""><el-icon><Timer /></el-icon></div>
+          </el-tooltip>
+          <el-tooltip content="未关联笔记" placement="right">
+            <div class="menu-item" @click=""><el-icon><Delete /></el-icon></div>
+          </el-tooltip>
         </div>
         <div class="bottom-menu">
-          <div class="menu-item" @click="openBlank('/explore')"><el-icon><Compass /></el-icon></div>
-          <div class="menu-item" @click="router.replace('/index/setting')"><el-icon><Setting /></el-icon></div>
+          <el-tooltip content="探索" placement="right">
+            <div class="menu-item" @click="openBlank('/explore')"><el-icon><Compass /></el-icon></div>
+          </el-tooltip>
+          <el-tooltip content="设置" placement="right">
+            <div class="menu-item" @click="router.replace('/index/setting')"><el-icon><Setting /></el-icon></div>
+          </el-tooltip>
         </div>
       </div>
     </el-aside>

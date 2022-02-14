@@ -4,7 +4,9 @@ import { reactive, ref } from 'vue';
 
 export const useAppStore = defineStore('app', () => {
 
-   // 全局加载
+  // 笔记全屏
+  const fullscreen = ref<boolean>(false);
+  // 全局加载
   const isLoad = ref<boolean>(false);
   // 加载百分比
   const loadPercent = ref<number>(0);
@@ -19,5 +21,5 @@ export const useAppStore = defineStore('app', () => {
     localStorage.setItem('inote-config', JSON.stringify(config));
   }
 
-  return { isLoad, loadPercent, config, saveConfig }
+  return { fullscreen, isLoad, loadPercent, config, saveConfig }
 });

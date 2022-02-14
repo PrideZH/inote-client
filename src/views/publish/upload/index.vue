@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { noteApi } from '@/api';
+import { articleApi, noteApi } from '@/api';
 import Vditor from 'vditor';
 import { onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -60,7 +60,7 @@ onMounted(() => {
     <el-form-item prop="coverUrl" label="封面">
     </el-form-item>
     <el-form-item label="标题">
-      <el-input :placeholder="form.title" />
+      <el-input v-model="form.title" placeholder="标题" />
     </el-form-item>
     <el-form-item prop="summary" label="简介">
       <el-input type="textarea" v-model="form.summary" placeholder="简介" />
