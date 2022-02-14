@@ -68,6 +68,10 @@ export const useNoteStore = defineStore('note', () => {
       linkElement.onclick = linkClickEvent;
     }
   };
+  // 渲染大纲
+  const __renderOutline = () => {
+
+  }
 
   // 打开笔记 isCover-是否覆盖当前所有以打开笔记
   const push = (note: Note, isCover: boolean = false) => {
@@ -97,6 +101,7 @@ export const useNoteStore = defineStore('note', () => {
     isAlter.value = true;
 
     __renderVditorLink();
+    __renderOutline();
   }
 
   return { currentNotes, currentNote, editor, isAlter, saveCurrentNote, push, inputCallback }

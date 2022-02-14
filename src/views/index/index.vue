@@ -38,6 +38,10 @@ onMounted(() => {
       position: 'right'
     },
     input: () => noteStore.inputCallback(),
+    after: () => {
+      // 设置大纲到侧边栏下
+      document.getElementById('outline')?.append(document.getElementsByClassName('vditor-outline')[0]);
+    },
     hint: {
       extend: [
         {
@@ -62,7 +66,31 @@ onMounted(() => {
   </div>
   <div class="note-container">
     <Header class="header" />
-    <div v-show="noteStore.currentNote !== null" id="editor" @keydown.ctrl.s.prevent="noteStore.saveCurrentNote()" />
+    <div class="note-main">
+      <div v-show="noteStore.currentNote !== null" id="editor" @keydown.ctrl.s.prevent="noteStore.saveCurrentNote()" />
+      <div class="note-detail" v-show="noteStore.currentNote !== null">
+        <el-collapse accordion>
+          <el-collapse-item v-if="noteStore.currentNote !== null" title="笔记信息" name="info">
+            <div class="info">
+              <div>笔记ID</div>
+              <div>{{ noteStore.currentNote.name }}_inote_{{ noteStore.currentNote.id }}</div>
+              <div>文章</div>
+              <div>未上传</div>
+              <div>编辑时间</div>
+              <div>{{ noteStore.currentNote.createTime }}</div>
+              <div>修改时间</div>
+              <div>{{ noteStore.currentNote.updateTime }}</div>
+            </div>
+            <!-- LUD: {{ noteStore.currentNote.updateTime }}
+            NID: {{ noteStore.currentNote.name }}_inote_{{ noteStore.currentNote.id }}
+            <el-button type="primary" size="small">发布</el-button> -->
+          </el-collapse-item>
+          <el-collapse-item title="笔记大纲" name="outline">
+            <div id="outline" />
+          </el-collapse-item>
+        </el-collapse>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -100,9 +128,38 @@ onMounted(() => {
   box-sizing: border-box;
 }
 
+.note-main {
+  display: flex;
+}
+
+.note-detail {
+  width: 200px;
+}
+
+.note-detail >>> .el-collapse-item__header {
+  line-height: 22px;
+  height: 22px;
+  font-weight: 700;
+}
+
+.note-detail >>> .el-collapse-item__content {
+  padding-bottom: 0;
+  height: calc(100vh - 89px);
+}
+
+.info {
+  padding: 4px 8px;
+}
+
+#outline {
+  overflow-y: scroll;
+  height: 100%;
+}
+
 #editor {
+  flex: 1;
   border: none;
-  height: calc(100% - 40px);
+  height: calc(100vh - 40px);
 }
 
 #editor >>> .vditor-reset {

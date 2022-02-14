@@ -12,11 +12,6 @@ const noteStore = useNoteStore();
         <a @click="noteStore.push(note)">{{ note.name }}</a>
       </el-breadcrumb-item>
     </el-breadcrumb>
-    <span class="info-text" v-if="noteStore.currentNote !== null">
-      LUD: {{ noteStore.currentNote.updateTime }}
-      NID: {{ noteStore.currentNote.name }}_inote_{{ noteStore.currentNote.id }}
-      <el-button type="primary" size="small">发布</el-button>
-    </span>
   </div>
 </template>
 
@@ -28,10 +23,5 @@ const noteStore = useNoteStore();
   min-height: 40px;
   padding: 0 32px;
   white-space: nowrap;
-}
-
-.info-text {
-  font-size: 8px;
-  color: #777;
 }
 </style>
