@@ -46,6 +46,11 @@ axios.interceptors.response.use(
     if (timer !== null) clearInterval(timer);
     setTimeout(() => appStore.isLoad = false, 200);
 
+    // 第三方接口
+    if (response.data.code === undefined) {
+      return Promise.resolve(response as any);
+    }
+
     const res: HttpResponse<unknown> = response.data;
     if (res.code !== 200) {
       ElMessage.error(`[${res.code}] ${res.message} ${res.data ? res.data : ''}`);

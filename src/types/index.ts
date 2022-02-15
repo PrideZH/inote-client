@@ -10,9 +10,13 @@ export interface Page<T> {
   pages: number;
 }
 
+export interface UserPage extends BaseEntity {
+  nickname: string;
+  avatarUrl: string;
+}
+
 // 目录数据
-export interface DirectoryNode {
-  id: number;
+export interface DirectoryNode extends BaseEntity {
   dirId: string;
   name: string;
   parentId: number;
@@ -38,7 +42,6 @@ export interface NotePage extends BaseEntity {
 }
 
 export interface ArticleOpen extends BaseEntity {
-  id: number;
   content: string;
   summary: string;
   tagNames: string[];
@@ -47,17 +50,20 @@ export interface ArticleOpen extends BaseEntity {
 
 export interface ArticlePage extends BaseEntity {
   title: string;
-  summary?: string;
-  coverUrl?: string;
-  author: {
-    nickname: string;
-  }
+  summary: string | null;
+  coverUrl: string | null;
+  tagNames: string[];
+  likeCount: number;
+  author: UserPage;
 }
 
 export interface ArticleInfo extends BaseEntity {
   title: string;
+  content: string;
   summary: string;
   close: boolean;
+  coverUrl: string | null;
+  tagNames: string[];
 }
 
 export interface ArticleInfoPage extends BaseEntity {

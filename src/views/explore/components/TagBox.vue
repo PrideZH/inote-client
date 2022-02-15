@@ -2,6 +2,7 @@
 import { tagApi } from '@/api';
 import { TagPage } from '@/types';
 import { onMounted, ref } from 'vue';
+import Tag from '@/components/Tag.vue';
 
 const tags = ref<TagPage[]>([]);
 onMounted(() => tagApi.getList(100, 1).then(res => tags.value = res.data.records))
@@ -11,9 +12,9 @@ onMounted(() => tagApi.getList(100, 1).then(res => tags.value = res.data.records
   <div class="tag-box">
     <div class="title">热门标签</div>
     <el-space wrap>
-      <span class="tag-item" v-for="tag in tags">
-        {{ tag.name }}
-      </span>
+      <Tag class="tag-item" v-for="tag in tags">
+        {{ tag.name }} <template v-if="tag.articleCount">{{ tag.articleCount }}</template>
+      </Tag>
     </el-space>
   </div>
 </template>
@@ -33,20 +34,5 @@ onMounted(() => tagApi.getList(100, 1).then(res => tags.value = res.data.records
   font-size: 18px;
   color: #282828;
   font-weight: 600;
-}
-
-.tag-item {
-  padding: 4px 8px;
-  border: 1px solid #e0e0e0;
-  border-radius: 2px;
-  color: rgba(0, 0, 0, .44);
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.6s ease;
-}
-
-.tag-item:hover {
-  color: #fff;
-  background-color: #1b1b1b;
 }
 </style>

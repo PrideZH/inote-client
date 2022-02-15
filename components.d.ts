@@ -26,17 +26,18 @@ declare module 'vue' {
     ElForm: typeof import('element-plus/es')['ElForm']
     ElFormItem: typeof import('element-plus/es')['ElFormItem']
     ElIcon: typeof import('element-plus/es')['ElIcon']
+    ElImage: typeof import('element-plus/es')['ElImage']
     ElInput: typeof import('element-plus/es')['ElInput']
     ElMain: typeof import('element-plus/es')['ElMain']
     ElMenu: typeof import('element-plus/es')['ElMenu']
     ElMenuItem: typeof import('element-plus/es')['ElMenuItem']
     ElPopover: typeof import('element-plus/es')['ElPopover']
     ElProgress: typeof import('element-plus/es')['ElProgress']
-    ElTable: typeof import('element-plus/es')['ElTable']
-    ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
+    ElSpace: typeof import('element-plus/es')['ElSpace']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     ElTree: typeof import('element-plus/es')['ElTree']
     IconBtn: typeof import('./src/components/IconBtn.vue')['default']
+    Tag: typeof import('./src/components/Tag.vue')['default']
   }
 }
 

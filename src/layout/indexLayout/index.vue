@@ -7,7 +7,7 @@ import router, { openBlank, push } from '@/router';
 import { clearToken } from '@/utils/auth';
 import { getUserInfo, logout } from '@/api/user';
 
-import { Compass, Delete, Folder, Management, Setting, Timer } from '@element-plus/icons-vue';
+import { Compass, Delete, Folder, Management, Picture, Setting, Timer } from '@element-plus/icons-vue';
 
 const appStore = useAppStore();
 const userStore = useUserStore();
@@ -48,6 +48,9 @@ onMounted(() => {
           </el-tooltip>
           <el-tooltip content="未关联笔记" placement="right">
             <div class="menu-item" @click=""><el-icon><Delete /></el-icon></div>
+          </el-tooltip>
+          <el-tooltip content="图片管理" placement="right">
+            <div class="menu-item" @click="router.replace('/index/images')"><el-icon><Picture /></el-icon></div>
           </el-tooltip>
         </div>
         <div class="bottom-menu">

@@ -4,6 +4,9 @@ import { reactive, ref } from 'vue';
 
 export const useAppStore = defineStore('app', () => {
 
+  // 系统
+  const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
+
   // 笔记全屏
   const fullscreen = ref<boolean>(false);
   // 全局加载
@@ -21,5 +24,5 @@ export const useAppStore = defineStore('app', () => {
     localStorage.setItem('inote-config', JSON.stringify(config));
   }
 
-  return { fullscreen, isLoad, loadPercent, config, saveConfig }
+  return { BASE_URL, fullscreen, isLoad, loadPercent, config, saveConfig }
 });

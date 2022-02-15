@@ -18,7 +18,7 @@ const handleSave = (): void => {
 </script>
 
 <template>
-  <el-form :model="picbedConfig">
+  <el-form :model="picbedConfig" label-width="auto" label-position="left">
     <el-form-item props="owner" label="Gitee 账号名称">
       <el-input v-model="picbedConfig.owner" placeholder="张三" />
     </el-form-item>
@@ -28,7 +28,7 @@ const handleSave = (): void => {
     <el-form-item props="path" label="文件路径">
       <el-input v-model="picbedConfig.path" placeholder="images" />
     </el-form-item>
-    <el-form-item props="accessToken" label="私人令牌">
+    <el-form-item props="accessToken" label="access_token">
       <el-input v-model="picbedConfig.accessToken" />
     </el-form-item>
     <el-form-item>

@@ -19,7 +19,7 @@ const beforeAvatarUpload = (file: ElFile): boolean => {
     ElMessage.error('头像图片必须为JPG格式!')
   }
   if (!isLt2M) {
-    ElMessage.error('图片大小超过 2MB!')
+    ElMessage.error('图片大小超过 500KB!')
   }
   return isJPG && isLt2M;
 }
