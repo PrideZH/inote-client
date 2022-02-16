@@ -21,8 +21,7 @@ const nodeClick = (note: GiteeImg) => {
 
 <style scoped>
 .image-aside {
-  height: 100vh;
-  width: 200px;
+  width: 180px;
 }
 
 .image-main {

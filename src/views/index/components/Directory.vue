@@ -101,8 +101,12 @@ const onClickNode = (node: DirectoryNode) => {
   }
 }
 
-const onContextmenu = (event: MouseEvent, node: DirectoryNode) => {
-  dirStore.activeKey = node.dirId;
+const onContextmenu = (event: MouseEvent, node: DirectoryNode | null) => {
+  if (node === null) {
+    dirStore.activeKey = '';
+  } else {
+    dirStore.activeKey = node.dirId;
+  }
   contextMenuRef.value.open(event, node);
 };
 
@@ -165,7 +169,7 @@ const onClickCreateNode = (node: DirectoryNode) => {
   });
 }
 const onClickCreateFolder = (node: DirectoryNode) => {
-  createFolderDialogRef.value.open(node.id, (data: DirectoryNode) => {
+  createFolderDialogRef.value.open(node !== null ? node.id : 0, (data: DirectoryNode) => {
     __refresh(data.parentId);
   });
 }
@@ -212,13 +216,7 @@ const onClickDel = (node: DirectoryNode) => {
         :allow-drop="isAllowDrop"
         :load="loadNode"
         :filter-node-method="filterNode"
-        @contextmenu.prevent="onContextmenu($event, {
-          id: 0,
-          dirId: '',
-          name: '',
-          parentId: 0,
-          note: false
-        })"
+        @contextmenu.prevent="onContextmenu($event, null)"
         @node-click="onClickNode"
         @node-contextmenu = "onContextmenu"
         @node-drop="onDropNode"
@@ -238,8 +236,8 @@ const onClickDel = (node: DirectoryNode) => {
   <Contextmenu ref="contextMenuRef">
     <template #default="{ data }">
       <!-- 根路径菜单 -->
-      <template v-if="data.id === 0">
-        <ContextmenuItem v-if="!data.note" @click="onClickCreateFolder(data)">新建文件夹</ContextmenuItem>
+      <template v-if="data === null">
+        <ContextmenuItem @click="onClickCreateFolder(data)">新建文件夹</ContextmenuItem>
       </template>
       <!-- 文件菜单 -->
       <template v-else>

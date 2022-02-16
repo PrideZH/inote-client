@@ -6,6 +6,10 @@ import { NotePage } from '@/types';
 
 import Header from './components/Header.vue';
 import Directory from './components/Directory.vue';
+import Gitee from '@/utils/gitee';
+import { PicbedConfig } from '@/types/global';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { StringUtil } from '@/utils/StringUtil';
 
 const appStore = useAppStore();
 const noteStore = useNoteStore();
@@ -33,6 +37,77 @@ onMounted(() => {
     height: '100%',
     cache: {
       enable: false // 关闭缓存
+    },
+    upload: {
+      accept: 'image/*',
+      multiple: false,
+      handler: (files: File[]) => {
+        const configJson: string | null = localStorage.getItem('picbed');
+        const picbedConfig: PicbedConfig | null = configJson ? JSON.parse(configJson) : null;
+        if (picbedConfig === null
+          || StringUtil.isOrBlank(
+            picbedConfig.owner,
+            picbedConfig.repo,
+            picbedConfig.path,
+            picbedConfig.accessToken)
+        ) {
+          ElMessage.warning('未配置图床，请到“设置”中配置');
+          return '';
+        }
+        if (noteStore.editor === null) {
+          return '';
+        }
+
+        const textBackup = noteStore.editor.getValue();
+
+        const placeholderStr = '<<图片上传中...>>';
+        noteStore.editor.insertValue(placeholderStr)
+        noteStore.editor.disabled()
+
+        const file = files[0];
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function(ev) {
+          if (ev.target === null) return;
+          const base64 = (this.result as string).replace(/^data:image\/\w+;base64,/, '')
+          // 上传图片
+          ElMessageBox.prompt('输入文件名').then(res => {
+            if (noteStore.editor === null) {
+              return Promise.resolve('编辑器丢失');
+            }
+
+            const fileName = res.value;
+            Gitee.addImg(picbedConfig.owner, picbedConfig.repo, picbedConfig.path, fileName,
+                { content: base64, message: 'inote commit', access_token: picbedConfig.accessToken }).then(res => {
+              // 插入图片地址
+              if (noteStore.editor !== null) {
+                const path: string = `\n\n![${fileName}](${res.data.content.download_url})\n\n`;
+                let textStr = noteStore.editor.getValue();
+                textStr = textStr.replace(placeholderStr, path);
+                noteStore.editor.setValue(textStr);
+
+                noteStore.editor.enable();
+
+                return `\n\n![${fileName}](${res.data.content.download_url})\n\n`;
+              }
+            }).catch(err => {
+              if (noteStore.editor === null) {
+                return '';
+              }
+              ElMessage.error('图床配置错误');
+              noteStore.editor.setValue(textBackup);
+              noteStore.editor.enable();
+            });
+          }).catch(() => {
+            if (noteStore.editor === null) {
+              return '';
+            }
+            noteStore.editor.setValue(textBackup);
+            noteStore.editor.enable();
+          })
+        }
+        return '';
+      }
     },
     outline: {
       enable: true,
