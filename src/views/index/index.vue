@@ -10,6 +10,7 @@ import Gitee from '@/utils/gitee';
 import { PicbedConfig } from '@/types/global';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { StringUtil } from '@/utils/StringUtil';
+import { getToken } from '@/utils/auth';
 
 const appStore = useAppStore();
 const noteStore = useNoteStore();
@@ -24,10 +25,11 @@ const getNoteLinks = (query: string) => {
     }
     const res = JSON.parse(xhr.responseText);
     result = res.data.records.map((note: NotePage) => ({
-      html: `${note.name} - inote_${note.id}`, value: `[${note.name}](http://localhost:3001/index?n=${note.id})\xa0`
+      html: `${note.name} - inote_${note.id}`, value: `[${note.name}](${window.location.host}/link?n=${note.id})\xa0`
     }));
   };
-  xhr.open('get', `/api/note?size=100&page=1&keyword=${query}`, false);
+  xhr.open('get', `${import.meta.env.VITE_APP_BASE_URL}/api/note?size=100&page=1&keyword=${query}`, false);
+  xhr.setRequestHeader('token', getToken());
   xhr.send(null);
   return result;
 }

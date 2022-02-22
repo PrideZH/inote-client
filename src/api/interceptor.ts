@@ -2,7 +2,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { clearToken, getToken } from '@/utils/auth';
 import { useAppStore } from '@/store';
 import { ElMessage } from 'element-plus';
-import { logout } from './user';
+import userApi from './user';
 import router from '@/router';
 
 export const TIMEOUT: number = 30 * 1000;
@@ -15,6 +15,7 @@ export interface HttpResponse<T = unknown> {
 
 let timer: NodeJS.Timer | null = null;
 
+axios.defaults.baseURL = import.meta.env.VITE_APP_BASE_URL as string;
 axios.defaults.timeout = TIMEOUT;
 
 axios.interceptors.request.use(
@@ -56,7 +57,7 @@ axios.interceptors.response.use(
       ElMessage.error(`[${res.code}] ${res.message} ${res.data ? res.data : ''}`);
       // 401: token 无效
       if ([401].includes(res.code)) {
-        logout();
+        userApi.logout();
         clearToken();
         router.push('/home/login');
       }

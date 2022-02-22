@@ -13,18 +13,24 @@ export interface UserData {
   avatarUrl?: string;
 }
 
-export function login(data: LoginData) {
-  return axios.post<Token>('/api/user/login', data);
+const userApi = {
+
+  login (data: LoginData) {
+    return axios.post<Token>('/api/user/login', data);
+  },
+
+  logout () {
+    return axios.post<Token>('/api/user/logout');
+  },
+
+  getUserInfo () {
+    return axios.get<UserInfo>('/api/user/me');
+  },
+
+  updateUser (id: number, userData: UserData) {
+    return axios.patch<UserInfo>(`/api/user/${id}`, userData);
+  }
+
 }
 
-export function logout() {
-  return axios.post<Token>('/api/user/logout');
-}
-
-export function getUserInfo() {
-  return axios.get<UserInfo>('/api/user/me');
-}
-
-export function updateUser(id: number, userData: UserData) {
-  return axios.patch<UserInfo>(`/api/user/${id}`, userData);
-}
+export default userApi;

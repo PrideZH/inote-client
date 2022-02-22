@@ -1,26 +1,38 @@
 <script setup lang="ts">
 import { onMounted} from 'vue';
 
-import { useAppStore, useUserStore } from '@/store';
+import { useAppStore, useDirStore, useUserStore } from '@/store';
 import router, { openBlank, push } from '@/router';
 
 import { clearToken } from '@/utils/auth';
-import { getUserInfo, logout } from '@/api/user';
+import userApi from '@/api/user';
 
 import { Compass, Delete, Folder, Management, Picture, Setting, Timer } from '@element-plus/icons-vue';
 
 const appStore = useAppStore();
+const dirStore = useDirStore();
 const userStore = useUserStore();
 
 const onLogout = () => {
-  logout().then(res => {
+  userApi.logout().then(res => {
     clearToken();
     push('/home');
   });
-};
+}
+
+const changeMenu = (mode: 'directory' | 'discrete' | 'recentness' | 'image') => {
+  dirStore.activeMode = mode;
+  if (mode === 'image') {
+    router.replace('/index/images');
+  } else {
+    dirStore.activeKey = null;
+    router.replace('/index');
+    dirStore.refreshTree();
+  }
+}
 
 onMounted(() => {
-  getUserInfo().then(res => userStore.userInfo = res.data);
+  userApi.getUserInfo().then(res => userStore.userInfo = res.data);
 });
 </script>
 
@@ -31,26 +43,46 @@ onMounted(() => {
         <template #reference>
           <el-avatar class="introduce-avatar" :src="userStore.avatarUrl">inote</el-avatar>
         </template>
-        <div class="introduce">
-          <div>{{ userStore.userInfo?.nickname }}</div>
-          <div class="introduce-username">{{ userStore.userInfo?.username }}</div>
-        </div>
-        <el-button @click="openBlank('/account')">个人中心</el-button>
-        <el-button @click="onLogout">退出登录</el-button>
+        <div>{{ userStore.userInfo?.nickname }}</div>
+        <div class="introduce-username">{{ userStore.userInfo?.username }}</div>
+        <el-space>
+          <el-button size="small" @click="openBlank('/account')">个人中心</el-button>
+          <el-button size="small" @click="onLogout">退出登录</el-button>
+        </el-space>
       </el-popover>
       <div class="menu">
         <div class="top-menu">
           <el-tooltip content="云文件" placement="right">
-            <div class="menu-item" @click="router.replace('/index')"><el-icon><Folder /></el-icon></div>
+            <div
+              :class="{'menu-item': true, 'active-menu-item': dirStore.activeMode === 'directory'}"
+              @click="changeMenu('directory')"
+            >
+              <el-icon><Folder /></el-icon>
+            </div>
           </el-tooltip>
           <el-tooltip content="最近编辑" placement="right">
-            <div class="menu-item" @click=""><el-icon><Timer /></el-icon></div>
+            <div
+              :class="{'menu-item': true, 'active-menu-item': dirStore.activeMode === 'recentness'}"
+              @click="changeMenu('recentness')"
+            >
+              <el-icon><Timer /></el-icon>
+            </div>
           </el-tooltip>
           <el-tooltip content="未关联笔记" placement="right">
-            <div class="menu-item" @click=""><el-icon><Delete /></el-icon></div>
+            <div
+              :class="{'menu-item': true, 'active-menu-item': dirStore.activeMode === 'discrete'}"
+              @click="changeMenu('discrete')"
+            >
+              <el-icon><Delete /></el-icon>
+            </div>
           </el-tooltip>
           <el-tooltip content="图片管理" placement="right">
-            <div class="menu-item" @click="router.replace('/index/images')"><el-icon><Picture /></el-icon></div>
+            <div
+              :class="{'menu-item': true, 'active-menu-item': dirStore.activeMode === 'image'}"
+              @click="changeMenu('image')"
+            >
+              <el-icon><Picture /></el-icon>
+            </div>
           </el-tooltip>
         </div>
         <div class="bottom-menu">
@@ -78,14 +110,6 @@ onMounted(() => {
 }
 </style>
 <style scoped>
-.introduce {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  height: 60px;
-  cursor: pointer;
-}
-
 .introduce-avatar {
   margin: 12px;
   min-width: 40px;
@@ -106,7 +130,6 @@ onMounted(() => {
   border-right: solid 1px #e6e6e6;
   overflow-y: auto;
   overflow-x: hidden;
-  transition: width 0.5s;
 }
 
 .menu {
@@ -120,6 +143,10 @@ onMounted(() => {
   width: 100%;
   padding: 16px 0;
   cursor: pointer;
+}
+
+.active-menu-item {
+  color: #409eff;
 }
 
 .content {

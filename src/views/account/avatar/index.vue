@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { HttpResponse } from '@/api/interceptor';
 import { updateUser } from '@/api/user';
 import { useUserStore } from '@/store';
+import { getToken } from '@/utils/auth';
 import { Plus } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 import { ElFile } from 'element-plus/es/components/upload/src/upload.type';
@@ -10,6 +12,8 @@ const userStore = useUserStore();
 
 const uploadRef = ref();
 const avatar = ref<string>('');
+
+const uploadUrl = import.meta.env.VITE_APP_BASE_URL + '/api/upload/avatar';
 
 const beforeAvatarUpload = (file: ElFile): boolean => {
   const isJPG = file.type === 'image/jpeg';
@@ -40,7 +44,11 @@ const onChange = (file: any, fileList: any[]) => {
   }
 }
 
-const onSuccess = (res: any) => {
+const onSuccess = (res: HttpResponse<string>) => {
+  if (res.code !== 200) {
+    ElMessage.error(res.message);
+    return;
+  }
   if (userStore.userInfo === null) return;
   updateUser(userStore.userInfo.id, { avatarUrl: res.data }).then(res => userStore.userInfo = res.data);
 }
@@ -52,7 +60,10 @@ const onSuccess = (res: any) => {
       <el-upload
         class="avatar-uploader"
         ref="uploadRef"
-        action="/api/upload/avatar"
+        :action="uploadUrl"
+        :headers="{
+          'token': getToken()
+        }"
         :show-file-list="false"
         :auto-upload="false"
         :limit="1"

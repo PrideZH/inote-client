@@ -1,4 +1,4 @@
-import { getUserInfo } from '@/api/user';
+import { userApi } from '@/api';
 import { UserInfo } from '@/types/user';
 import { isLogin } from '@/utils/auth';
 import { defineStore } from 'pinia';
@@ -8,7 +8,7 @@ export const useUserStore = defineStore('user', () => {
   const userInfo = ref<UserInfo | null>(null);
 
   if (isLogin()) {
-    getUserInfo().then(res => userInfo.value = res.data);
+    userApi.getUserInfo().then(res => userInfo.value = res.data);
   }
 
   const avatarUrl = computed((): string => {

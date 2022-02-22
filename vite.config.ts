@@ -27,18 +27,18 @@ export default ({ command, mode }) =>{
         '@': resolve(__dirname, 'src') // 设置 `@` 指向 `src` 目录
       }
     },
-    server: {
-      port: 3001,
-      open: false, //自动打开
-      base: "./ ", //生产环境路径
-      proxy: { // 本地开发环境通过代理实现跨域，生产环境使用 nginx 转发
-        '^/api': {
-          target: envResolve(mode, 'VITE_APP_BASE_URL'),
-          changeOrigin: true, //开启代理
-          secure: false,
-          rewrite: (path) => path.replace('/^\/api/', '')
-        }
-      }
-    },
+    // 后端解决跨域
+    // server: {
+    //   port: 3001, // 前端端口--随意，通过Nginx反向代理后都一样
+    //   open: true, // 自动打开
+    //   // base: "./ ", // 生产环境路径
+    //   proxy: {
+    //     '^/api': {
+    //       target: envResolve(mode, 'VITE_APP_BASE_URL'),
+    //       changeOrigin: true, //开启代理
+    //       rewrite: (path) => path.replace('/^\/api/', '')
+    //     }
+    //   }
+    // },
   });
 }

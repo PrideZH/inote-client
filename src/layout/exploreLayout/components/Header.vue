@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { logout } from '@/api/user';
+import { userApi } from '@/api';
 import router, { openBlank, push } from '@/router';
 import { useUserStore } from '@/store';
 import { clearToken, isLogin } from '@/utils/auth';
@@ -12,7 +12,7 @@ const dropdownCommand = (command: string) => {
   } else if (command === 'article') {
     openBlank('/publish')
   } else if (command === 'logout') {
-    logout().then(res => {
+    userApi.logout().then(res => {
       clearToken();
       push('/home');
     });

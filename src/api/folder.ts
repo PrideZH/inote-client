@@ -29,10 +29,6 @@ const folderApi = {
     return axios.get<DirectoryNode[]>(`/api/folder/${id}/me/directory`);
   },
 
-  getNotRelevance () {
-    return axios.get<DirectoryNode[]>(`/api/folder/notRelevance`);
-  },
-
   set (id: number, dirData: DirectoryData) {
     return axios.patch<DirectoryNode>(`/api/folder/${id}`, dirData);
   },

@@ -31,7 +31,6 @@ export const useNoteStore = defineStore('note', () => {
     }
   };
 
-
   // 链接点击事件
   const linkClickEvent = (e: Event) => {
     let ele: Element = e.target as Element;
@@ -39,7 +38,7 @@ export const useNoteStore = defineStore('note', () => {
     if (!(ele.parentNode as Element).classList.contains('vditor-ir__node--expand')) {
       const link: string = ele.nextElementSibling?.nextElementSibling?.nextElementSibling?.innerHTML as string;
       const host: string = window.location.host;
-      if (link.indexOf(host) !== 0) {
+      if (link.indexOf(host) === 0) {
         const pathAndParm: string[] = link.substring(link.indexOf(host) + host.length).split('?');
         if (pathAndParm[1] === undefined) {
           return;
@@ -49,12 +48,10 @@ export const useNoteStore = defineStore('note', () => {
           return;
         }
         const id = parms[1];
-        if (pathAndParm[0] === '/index') { // 跳转工作区笔记
+        if (pathAndParm[0] === '/link') {
           noteApi.get(Number(id)).then(res => {
             push(res.data);
           });
-          e.stopPropagation();
-        } else if (pathAndParm[1] === '/article') { // 跳转文章
           e.stopPropagation();
         }
       }

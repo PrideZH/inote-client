@@ -21,6 +21,14 @@ const noteApi = {
     return axios.get<Page<NotePage>>('/api/note', { params: {size, page, keyword} });
   },
 
+  getMeRecentness (days: number) {
+    return axios.get<DirectoryNode[]>('/api/note/me/recentness', { params: { days }});
+  },
+
+  getMeDiscrete () {
+    return axios.get<DirectoryNode[]>('/api/note/me/discrete');
+  },
+
   set (id: number, noteData: NoteData) {
     return axios.patch<Note>(`/api/note/${id}`, noteData);
   },

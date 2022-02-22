@@ -8,6 +8,7 @@ import store from './store';
 import '@/api/interceptor';
 
 import 'vditor/src/assets/scss/index.scss';
+
 import 'element-plus/theme-chalk/el-form.css';
 import 'element-plus/theme-chalk/el-message.css';
 import 'element-plus/theme-chalk/el-message-box.css';

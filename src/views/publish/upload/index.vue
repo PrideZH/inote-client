@@ -8,6 +8,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { diff_match_patch } from '@/utils/diff_match_patch';
 import { ElFile } from 'element-plus/es/components/upload/src/upload.type';
 import { useAppStore } from '@/store';
+import { HttpResponse } from '@/api/interceptor';
+import { getToken } from '@/utils/auth';
 
 const route = useRoute();
 const router = useRouter();
@@ -17,6 +19,8 @@ const noteId: number = Number(route.params.id);
 
 const diff = ref<any[] | null>(null);
 let isAlter: boolean = false;
+
+const uploadUrl = import.meta.env.VITE_APP_BASE_URL + '/api/upload/cover';
 
 const appSotre = useAppStore();
 
@@ -97,7 +101,11 @@ const onChange = (file: any, fileList: any[]) => {
   }
 }
 
-const onSuccess = (res: any) => {
+const onSuccess = (res: HttpResponse<string>) => {
+  if (res.code !== 200) {
+    ElMessage.error(res.message);
+    return;
+  }
   if (res.data === undefined || res.code !== 200) {
     ElMessage.error(res.message);
     return;
@@ -213,7 +221,10 @@ onMounted(() => {
       <el-upload
         ref="uploadRef"
         class="cover-uploader"
-        action="/api/upload/cover"
+        :action="uploadUrl"
+        :headers="{
+          'token': getToken()
+        }"
         :show-file-list="false"
         :auto-upload="false"
         :limit="1"

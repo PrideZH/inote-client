@@ -7,7 +7,7 @@ const route = useRoute();
 let activeIndex = ref<string>(route.path);
 
 const settingMenuitems = [
-  { index: '/setting/picbed', locale: '图床设置' },
+  { index: '/index/setting/picbed', locale: '图床设置' },
 ];
 
 const title = computed(() => {
