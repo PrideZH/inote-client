@@ -19,6 +19,10 @@ const articleApi = {
     return axios.get<ArticleOpen>(`/api/article/${id}`);
   },
 
+  getContent (id: number, section: string) {
+    return axios.get<string>(`/api/article/${id}/content`, { params: { section } });
+  },
+
   getMe (id: number) {
     return axios.get<ArticleInfo>(`/api/article/${id}/me`);
   },

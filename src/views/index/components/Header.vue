@@ -11,7 +11,9 @@ const noteStore = useNoteStore();
   <div class="header">
     <el-breadcrumb :separator-icon="ArrowRight">
       <el-breadcrumb-item v-for=" note in noteStore.currentNotes" :key="note.id">
-        <a @click="noteStore.push(note)">{{ note.name }}</a>
+        <a :class="{'unsave': noteStore.currentNote === note && noteStore.isAlter}" @click="noteStore.push(note)">
+          {{ note.name }}
+        </a>
       </el-breadcrumb-item>
     </el-breadcrumb>
     <div>
@@ -33,5 +35,9 @@ const noteStore = useNoteStore();
   min-height: 40px;
   padding: 0 32px;
   white-space: nowrap;
+}
+
+.unsave {
+  color: #f75353 !important;
 }
 </style>

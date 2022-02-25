@@ -1,6 +1,6 @@
 import { Config } from '@/types/global';
 import { defineStore } from 'pinia';
-import { reactive, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 
 export const useAppStore = defineStore('app', () => {
 
@@ -24,5 +24,9 @@ export const useAppStore = defineStore('app', () => {
     localStorage.setItem('inote-config', JSON.stringify(config));
   }
 
-  return { BASE_URL, fullscreen, isLoad, loadPercent, config, saveConfig }
+  const isMobile = computed(() => {
+    return navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)
+  });
+
+  return { BASE_URL, fullscreen, isLoad, loadPercent, config, saveConfig, isMobile }
 });

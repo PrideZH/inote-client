@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { userApi } from '@/api';
 import { HttpResponse } from '@/api/interceptor';
-import { updateUser } from '@/api/user';
 import { useUserStore } from '@/store';
 import { getToken } from '@/utils/auth';
 import { Plus } from '@element-plus/icons-vue';
@@ -50,7 +50,7 @@ const onSuccess = (res: HttpResponse<string>) => {
     return;
   }
   if (userStore.userInfo === null) return;
-  updateUser(userStore.userInfo.id, { avatarUrl: res.data }).then(res => userStore.userInfo = res.data);
+  userApi.updateUser(userStore.userInfo.id, { avatarUrl: res.data }).then(res => userStore.userInfo = res.data);
 }
 </script>
 

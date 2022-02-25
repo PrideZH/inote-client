@@ -46,6 +46,8 @@ export interface ArticleOpen extends BaseEntity {
   summary: string;
   tagNames: string[];
   title: string;
+  sections: string[];
+  author: UserPage;
 }
 
 export interface ArticlePage extends BaseEntity {

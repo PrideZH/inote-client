@@ -59,10 +59,6 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/views/explore/index.vue')
       },
       {
-        path: 'article/:id',
-        component: () => import('@/views/article/index.vue')
-      },
-      {
         name: 'account',
         path: 'account',
         component: () => import('@/views/account/index.vue'),
@@ -116,6 +112,16 @@ const routes: Array<RouteRecordRaw> = [
       },
     ]
   },
+  {
+    name: 'article',
+    path: '/article/:id',
+    component: () => import('@/views/article/index.vue')
+  },
+  {
+    name: 'comment',
+    path: '/article/:id/comment',
+    component: () => import('@/views/comment/index.vue')
+  }
 
   // {
   //   path: '/:pathMatch(.*)*',

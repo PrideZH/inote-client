@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { reactive, ref } from "@vue/reactivity";
 import { useRouter } from "vue-router";
-import { login } from '@/api/user';
 import { setToken } from "@/utils/auth";
 import { ElForm } from "element-plus";
+import { userApi } from "@/api";
 
 const router = useRouter();
 
@@ -54,7 +54,7 @@ const onLogin = () => {
   formRef.value.validate((valid: boolean | undefined) => {
     if (valid) {
       loginLoading.value = true;
-      login({username: form.username, password: form.password}).then(res => {
+      userApi.login({username: form.username, password: form.password}).then(res => {
         loginLoading.value = false;
         setToken(res.data.token);
         routerTo('/index');

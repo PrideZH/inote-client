@@ -1,14 +1,17 @@
 <script setup lang="ts">
+import { useAppStore } from '@/store';
 import ArticleList from './components/ArticleList.vue';
 import TagBox from './components/TagBox.vue';
+
+const appStore = useAppStore();
 </script>
 
 <template>
-  <div class="explore-container">
+  <div :class="'explore-view ' + (appStore.isMobile ? 'explore-view-mobile' : 'explore-view-pc')">
     <div class="left-box">
       <ArticleList />
     </div>
-    <el-affix :offset="48">
+    <el-affix v-if="!appStore.isMobile" :offset="48">
       <div class="right-box">
         <TagBox />
       </div>
@@ -17,11 +20,16 @@ import TagBox from './components/TagBox.vue';
 </template>
 
 <style scoped>
-.explore-container {
+.explore-view {
   display: flex;
   min-height: calc(100% - 48px);
-  padding: 0 80px;
   background-color: #f6f6f6;
+}
+.explore-view-pc {
+  padding: 0 80px;
+}
+.explore-view-mobile {
+  padding: 0;
 }
 
 .left-box {
