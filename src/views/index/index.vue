@@ -205,6 +205,7 @@ onMounted(() => {
 <style scoped>
 .note-container {
   flex: 1;
+  width: 0;
   display: flex;
   flex-direction: column;
 }
@@ -254,6 +255,7 @@ onMounted(() => {
 
 #editor {
   flex: 1;
+  width: 0 !important;
   border: none;
   height: calc(100vh - 40px);
 }
@@ -266,6 +268,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   width: 180px;
+  min-width: 180px;
   background-color: #fafafa;
 }
 

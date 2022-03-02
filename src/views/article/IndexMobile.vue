@@ -37,6 +37,7 @@ const updateContent = (section: string) => {
 
 onMounted(() => {
   articleApi.get(articleId).then(res => {
+    document.title = res.data.title + ' · inote';
     article.value = res.data;
     const hash = decodeURI(window.location.hash);
     if (hash === '') {
@@ -182,7 +183,7 @@ onBeforeRouteUpdate(() => {
 }
 
 .article-content {
-  padding: 4px 80px 4px 24px;
+  padding: 4px 24px;
 }
 
 .article-btn-group {

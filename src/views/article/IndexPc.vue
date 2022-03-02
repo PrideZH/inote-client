@@ -37,6 +37,7 @@ const updateContent = (section: string) => {
 
 onMounted(() => {
   articleApi.get(articleId).then(res => {
+    document.title = res.data.title + ' · inote';
     article.value = res.data;
     const hash = decodeURI(window.location.hash);
     if (hash === '') {

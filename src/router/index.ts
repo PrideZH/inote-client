@@ -9,6 +9,9 @@ const routes: Array<RouteRecordRaw> = [
     name: 'home',
     path: '/home',
     component: HomeLayout,
+    meta: {
+      title: '首页 · inote'
+    },
     children: [
       {
         path: '',
@@ -24,6 +27,9 @@ const routes: Array<RouteRecordRaw> = [
     name: "index",
     path: "/index",
     component: IndexLayout,
+    meta: {
+      title: '工作台 · inote'
+    },
     children: [
       {
         path: '',
@@ -52,6 +58,9 @@ const routes: Array<RouteRecordRaw> = [
     path: '/',
     component: ExploreLayout,
     redirect: 'explore',
+    meta: {
+      title: '探索 · inote'
+    },
     children: [
       {
         name: 'explore',
@@ -63,6 +72,9 @@ const routes: Array<RouteRecordRaw> = [
         path: 'account',
         component: () => import('@/views/account/index.vue'),
         redirect: '/account/home',
+        meta: {
+          title: '个人中心 · inote'
+        },
         children: [
           {
             path: 'home',
@@ -83,6 +95,9 @@ const routes: Array<RouteRecordRaw> = [
         path: 'publish',
         component: () => import('@/views/publish/index.vue'),
         redirect: '/publish/home',
+        meta: {
+          title: '文章中心 · inote'
+        },
         children: [
           {
             path: 'home',
@@ -136,6 +151,15 @@ const router: Router = createRouter({
 });
 
 export default router;
+
+router.beforeEach((to, from, next) => {
+  // 页面标题
+  const title: string | undefined = to.meta.title as string;
+  if (title) {
+    document.title = title;
+  }
+  next();
+});
 
 export const push = (path: string, query?: object) => {
   router.push(path);
