@@ -11,10 +11,6 @@ import IconBtn from '@/components/IconBtn.vue';
 import Contextmenu from '@/components/Contextmenu.vue';
 import ContextmenuItem from '@/components/ContextmenuItem.vue';
 import ContextmenuDivided from '@/components/ContextmenuDivided.vue';
-import CreateNoteDialog from './CreateNoteDialog.vue';
-import CreateFolderDialog from './CreateFolderDialog.vue';
-import AddNoteDialog from './AddNoteDialog.vue';
-import RenameDirDialog from './RenameDirDialog.vue';
 import { Document, Sort, Refresh } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import useClipboard from 'vue-clipboard3';
@@ -26,10 +22,6 @@ const noteStore = useNoteStore();
 
 const treeRef = ref();
 const contextMenuRef = ref();
-const createNoteDialogRef = ref();
-const createFolderDialogRef = ref();
-const addNoteDialogRef = ref();
-const renameDirDialogRef = ref();
 
 const dirData = ref<DirectoryNode[]>([]);
 
@@ -165,35 +157,6 @@ const __refresh = (folderId: number) => {
   }
 }
 
-// 右键菜单功能
-const onClickCreateNode = (parentId: number | null) => {
-  createNoteDialogRef.value.open(parentId, (data: DirectoryNode) => {
-    __refresh(data.parentId);
-    // 打开新建笔记
-    noteApi.get(data.noteId as number).then(res => {
-      noteStore.push(res.data, true);
-    });
-  });
-}
-const onClickCreateFolder = (node: DirectoryNode) => {
-  createFolderDialogRef.value.open(node !== null ? node.id : 0, (data: DirectoryNode) => {
-    __refresh(data.parentId);
-  });
-}
-const onClickAddFolder = (node: DirectoryNode) => {
-  addNoteDialogRef.value.open(node.id, (data: DirectoryNode) => {
-    __refresh(data.parentId);
-  });
-}
-const { toClipboard } = useClipboard();
-const onCopyLink = async (node: DirectoryNode) => {
-  try {
-    await toClipboard(`[${node.name}](${window.location.host}/link?n=${node.noteId})\xa0`);
-    ElMessage.success('复制成功');
-  } catch (e) {
-    ElMessage.error('复制失败: ' + e)
-  }
-}
 const onClickRename = (node: DirectoryNode) => {
   ElMessageBox.prompt('重命名', {
     confirmButtonText: '确定',
@@ -235,7 +198,6 @@ const onClickDelNode = (node : DirectoryNode) => {
 
 <template>
   <div class="directory-container">
-
     <div class="dir-tool">
       <el-input v-model="filterText" size="small" />
       <IconBtn><el-icon><Sort /></el-icon></IconBtn>
@@ -274,42 +236,6 @@ const onClickDelNode = (node : DirectoryNode) => {
       </el-tree>
     </div>
   </div>
-
-  <Contextmenu ref="contextMenuRef">
-    <template #default="{ data }">
-      <template v-if="dirStore.activeMode === 'directory'">
-        <!-- 根路径菜单 -->
-        <template v-if="data === null">
-          <ContextmenuItem @click="onClickCreateNode(0)">新建笔记</ContextmenuItem>
-          <ContextmenuItem @click="onClickCreateFolder(data)">新建文件夹</ContextmenuItem>
-        </template>
-        <!-- 文件菜单 -->
-        <template v-else>
-          <ContextmenuItem v-if="!data.note" @click="onClickCreateNode(data.id)">新建笔记</ContextmenuItem>
-          <ContextmenuItem v-if="!data.note" @click="onClickCreateFolder(data)">新建文件夹</ContextmenuItem>
-          <ContextmenuItem v-if="!data.note" @click="onClickAddFolder(data)">添加笔记</ContextmenuItem>
-          <ContextmenuDivided v-if="!data.note" />
-          <ContextmenuItem v-if="data.note" @click="onCopyLink(data)">复制链接</ContextmenuItem>
-          <ContextmenuDivided v-if="data.note" />
-          <ContextmenuItem @click="onClickRename(data)">重命名</ContextmenuItem>
-          <ContextmenuItem @click="onClickDel(data)">删除</ContextmenuItem>
-        </template>
-      </template>
-      <template v-else-if="dirStore.activeMode === 'discrete'">
-        <template v-if="data === null">
-          <ContextmenuItem @click="onClickCreateNode(null)">新建笔记</ContextmenuItem>
-        </template>
-        <template v-else>
-          <ContextmenuItem @click="onClickDelNode(data)">删除</ContextmenuItem>
-        </template>
-      </template>
-    </template>
-  </Contextmenu>
-
-  <CreateNoteDialog ref="createNoteDialogRef" />
-  <CreateFolderDialog ref="createFolderDialogRef" />
-  <AddNoteDialog ref="addNoteDialogRef" />
-  <RenameDirDialog ref="renameDirDialogRef" />
 </template>
 
 <style scoped>

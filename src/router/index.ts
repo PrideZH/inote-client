@@ -51,8 +51,16 @@ const routes: Array<RouteRecordRaw> = [
             component: () => import('@/views/setting/picbed/index.vue')
           }
         ]
-      },
+      }
     ]
+  },
+  {
+    name: 'edit',
+    path: '/index/edit',
+    component: () => import('@/views/index/editMobile/index.vue'),
+    meta: {
+      mobile: true
+    }
   },
   {
     path: '/',

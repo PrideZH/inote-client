@@ -3,7 +3,7 @@ import { articleApi } from '@/api';
 import router, { openBlank } from '@/router';
 import Vditor from 'vditor';
 import { ArticleOpen } from '@/types';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { onBeforeRouteUpdate, useRoute } from 'vue-router';
 import IconBtn from '@/components/IconBtn.vue';
 import { ChatLineRound, Fold } from '@element-plus/icons-vue';
@@ -20,6 +20,8 @@ if (isNaN(articleId)) {
 const article = ref<ArticleOpen>();
 const activeSection = ref<string>('');
 const isFold = ref<boolean>(false); // 侧边栏是否折叠
+
+const hash = ref<string>(decodeURI(window.location.hash).substring(1));
 
 const updateContent = (section: string) => {
   activeSection.value = section;
@@ -39,11 +41,10 @@ onMounted(() => {
   articleApi.get(articleId).then(res => {
     document.title = res.data.title + ' · inote';
     article.value = res.data;
-    const hash = decodeURI(window.location.hash);
-    if (hash === '') {
+    if (hash.value === '') {
       updateContent(res.data.sections[0]);
     } else {
-      updateContent(hash.substring(1));
+      updateContent(hash.value);
     }
   }).catch(err => {
     if (err.code === 404) router.push('/404');
@@ -51,7 +52,8 @@ onMounted(() => {
 });
 
 onBeforeRouteUpdate(() => {
-  updateContent(decodeURI(window.location.hash).substring(1));
+  hash.value = decodeURI(window.location.hash).substring(1);
+  updateContent(hash.value);
 });
 </script>
 
@@ -76,12 +78,20 @@ onBeforeRouteUpdate(() => {
       <el-space>
         <Tag v-for="tagName in article?.tagNames">{{ tagName }}</Tag>
       </el-space>
-      <div class="outline">
-        <a class="section-item" v-for="section in article?.sections" :key="section" :href="section ? '#' + section : ''">
-          {{ section || article?.title }}
-        </a>
+      <div class="outline-view">
+        <div class="outline">
+          <a
+            v-for="section in article?.sections" :key="section" :href="section ? '#' + section : ''"
+            :class="{ 'section-item': true, 'section-item-active':  hash === section}"
+          >
+            {{ section || article?.title }}
+          </a>
+        </div>
+        <div id="outline" />
       </div>
-      <div id="outline" />
+      <div class="side-footer">
+        本文章使用 <el-button type="text">inote</el-button> 构建
+      </div>
     </div>
     <div class="article-main"
       :style="{ marginLeft: isFold ? '0' : '280px', width: isFold ? '100%' : 'calc(100% - 280px)' }"
@@ -122,18 +132,15 @@ onBeforeRouteUpdate(() => {
 }
 
 .article-side {
+  display: flex;
+  flex-direction: column;
   position: fixed;
   margin-right: 8px;
   height: 100vh;
   border: 1px solid #ddd;
   background-color: #fafafa;
-  overflow: hidden;
   transition: width 0.5s;
   box-sizing: border-box;
-}
-
-.article-side:hover {
-  overflow: scroll;
 }
 
 .article-title {
@@ -155,6 +162,15 @@ onBeforeRouteUpdate(() => {
   padding: 0 16px;
 }
 
+.outline-view {
+  flex: 1;
+  overflow: hidden;
+}
+
+.outline-view:hover {
+  overflow: scroll;
+}
+
 .outline {
   display: flex;
   flex-direction: column;
@@ -164,8 +180,13 @@ onBeforeRouteUpdate(() => {
 
 .section-item {
   padding: 0.25rem 1.25rem;
-  color: #444;
+  color: #666;
   text-decoration: none;
+}
+
+.section-item-active {
+  color: #4cd4ac;
+  border-left: 3px solid #4cd4ac;
 }
 
 .section-item:hover {
@@ -178,6 +199,13 @@ onBeforeRouteUpdate(() => {
   padding: 8px 0;
   border-top: 1px solid #eee;
   color: #666;
+}
+
+.side-footer {
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+  border-top: 1px solid #eee;
 }
 
 .article-main {
