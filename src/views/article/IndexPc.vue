@@ -3,12 +3,14 @@ import { articleApi } from '@/api';
 import router, { openBlank } from '@/router';
 import Vditor from 'vditor';
 import { ArticleOpen } from '@/types';
-import { computed, onMounted, ref } from 'vue';
+import { nextTick, onMounted, ref } from 'vue';
 import { onBeforeRouteUpdate, useRoute } from 'vue-router';
-import IconBtn from '@/components/IconBtn.vue';
-import { ChatLineRound, Fold } from '@element-plus/icons-vue';
+import { ChatLineRound } from '@element-plus/icons-vue';
 import Tag from '@/components/Tag.vue';
 import { TimeUtil } from '@/utils/TimeUtil';
+import { useAppStore } from '@/store';
+import likeApi from '@/api/like';
+import { StringUtil } from '@/utils/StringUtil';
 
 const route = useRoute();
 
@@ -16,6 +18,8 @@ const articleId: number = Number(route.params.id);
 if (isNaN(articleId)) {
   router.push('/404');
 }
+
+const appStore = useAppStore();
 
 const article = ref<ArticleOpen>();
 const activeSection = ref<string>('');
@@ -26,7 +30,7 @@ const hash = ref<string>(decodeURI(window.location.hash).substring(1));
 const updateContent = (section: string) => {
   activeSection.value = section;
   const previewDiv: HTMLDivElement = document.getElementById('preview') as HTMLDivElement;
-  articleApi.getContent(articleId, section).then(res => {
+  articleApi.getContent(articleId, StringUtil.isEmpty(section) ? undefined : section).then(res => {
     Vditor.preview(previewDiv, res.data, {
       mode: 'light',
       after () {
@@ -37,15 +41,19 @@ const updateContent = (section: string) => {
   });
 }
 
+const onLike = () => {
+  likeApi.like({ type: 0, targetId: article.value?.id as number }).then(res => {
+    if (!article.value) return;
+    article.value.likeCount += article.value.active ? -1 : 1;
+    article.value.active = !article.value.active;
+  });
+}
+
 onMounted(() => {
   articleApi.get(articleId).then(res => {
     document.title = res.data.title + ' · inote';
     article.value = res.data;
-    if (hash.value === '') {
-      updateContent(res.data.sections[0]);
-    } else {
-      updateContent(hash.value);
-    }
+    updateContent(hash.value);
   }).catch(err => {
     if (err.code === 404) router.push('/404');
   });
@@ -63,26 +71,23 @@ onBeforeRouteUpdate(() => {
       <div class="article-title ">
         {{ article?.title }}
       </div>
-      <div class="introduce">
-        <!-- <el-avatar :src="article?.author.avatarUrl">inote</el-avatar>
-        <div>{{ article?.author.nickname }}</div> -->
-        <el-avatar>inote</el-avatar>
-        <div class="introduce-info">
-          <div>PrideZH</div>
-          <div style="color: #999">
-            {{ article ? TimeUtil.dateFormat(article?.createTime, 'yyyy年MM月dd日 hh:mm') : '---' }}
-          </div>
-          <!-- · 阅读 123 -->
+      <div class="author">
+        <el-avatar
+          class="author-avatar"
+          :src="article?.author.avatarUrl ? appStore.BASE_URL + article?.author.avatarUrl : ''"
+          @click="openBlank(`/space/${article?.author.id}`)"
+        >
+          inote
+        </el-avatar>
+        <div class="author-info">
+          <div class="author-nickname" @click="openBlank(`/space/${article?.author.id}`)">{{ article?.author.nickname }}</div>
         </div>
       </div>
-      <el-space>
-        <Tag v-for="tagName in article?.tagNames">{{ tagName }}</Tag>
-      </el-space>
       <div class="outline-view">
         <div class="outline">
           <a
-            v-for="section in article?.sections" :key="section" :href="section ? '#' + section : ''"
-            :class="{ 'section-item': true, 'section-item-active':  hash === section}"
+            v-for="section in article?.sections" :key="section" :href="section ? '#' + section : '#'"
+            :class="{ 'section-item': true, 'section-item-active':  hash === section }"
           >
             {{ section || article?.title }}
           </a>
@@ -97,17 +102,35 @@ onBeforeRouteUpdate(() => {
       :style="{ marginLeft: isFold ? '0' : '280px', width: isFold ? '100%' : 'calc(100% - 280px)' }"
     >
       <div class="article-header">
-        <!-- <IconBtn class="fold-btn" @click="isFold = !isFold"><el-icon><Fold /></el-icon></IconBtn> -->
         {{ activeSection || article?.title }}
+      </div>
+      <div class="introduce">
+        <el-space class="introduce-info">
+          <el-space>
+            <el-icon><svg t="1649597537917" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3072" width="200" height="200"><path d="M512.3 276.9c-228.4 0-374 178.5-393.8 255.9 19.3 78.2 165.5 256 393.8 256s373.8-176.5 393.9-256c-19.7-78.2-165.6-255.9-393.9-255.9z m0 452.9c-182.3 0-303.2-131.1-331.5-196.7C209.6 467.4 331.2 336 512.3 336c181.9 0 303 131.2 331.5 196.9-28.6 65.6-149.8 196.9-331.5 196.9z" fill="#666666" p-id="3073"></path><path d="M512.3 434.4c-54.4 0-98.4 44.1-98.4 98.5s44.1 98.4 98.4 98.4c54.4 0 98.5-44.1 98.5-98.4 0-54.4-44.1-98.5-98.5-98.5z m0 137.9c-21.7 0-39.4-17.7-39.4-39.4s17.6-39.4 39.4-39.4 39.4 17.7 39.4 39.4-17.7 39.4-39.4 39.4z" fill="#666666" p-id="3074"></path></svg></el-icon>
+            <div>{{ article?.viewCount }}</div>
+          </el-space>
+          <el-space>
+            <el-icon><svg t="1649597881230" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4196" width="200" height="200"><path d="M512 64c-256 0-460.8 208-460.8 460.8s208 460.8 460.8 460.8 460.8-208 460.8-460.8S768 64 512 64zM512 940.8c-227.2 0-412.8-185.6-412.8-412.8s185.6-412.8 412.8-412.8 412.8 185.6 412.8 412.8S742.4 940.8 512 940.8z" p-id="4197"></path><path d="M809.6 544l-278.4 0 0-281.6c0-12.8-9.6-22.4-22.4-22.4-12.8 0-22.4 9.6-22.4 22.4l0 307.2c0 12.8 9.6 22.4 22.4 22.4 0 0 3.2 0 3.2 0l297.6 0c12.8 0 22.4-9.6 22.4-22.4C832 553.6 822.4 544 809.6 544z" p-id="4198"></path></svg></el-icon>
+            <div>{{ article ? TimeUtil.dateFormat(article?.updateTime, 'yyyy年MM月dd日 hh:mm') : '---' }}</div>
+          </el-space>
+          <el-space>
+            <el-icon><svg t="1649597422616" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2234" width="200" height="200"><path d="M469.333533 968.08a52.986667 52.986667 0 0 1-37.713333-15.62l-416-416A52.986667 52.986667 0 0 1 0.0002 498.746667V138.666667a53.393333 53.393333 0 0 1 53.333333-53.333334h360.08a52.986667 52.986667 0 0 1 37.713334 15.62l416 416a53.4 53.4 0 0 1 0 75.426667l-360.08 360.08a52.986667 52.986667 0 0 1-37.713334 15.62zM53.333533 128a10.666667 10.666667 0 0 0-10.666666 10.666667v360.08a10.573333 10.573333 0 0 0 3.126666 7.54l416 416a10.666667 10.666667 0 0 0 15.08 0l360.08-360.08a10.666667 10.666667 0 0 0 0-15.08l-416-416a10.573333 10.573333 0 0 0-7.54-3.126667z m224 341.333333c-58.813333 0-106.666667-47.853333-106.666666-106.666666s47.853333-106.666667 106.666666-106.666667 106.666667 47.853333 106.666667 106.666667-47.853333 106.666667-106.666667 106.666666z m0-170.666666a64 64 0 1 0 64 64 64.073333 64.073333 0 0 0-64-64z m335.086667 676.42l382.706667-382.706667a53.4 53.4 0 0 0 0-75.426667L569.753533 91.58a21.333333 21.333333 0 0 0-30.173333 30.173333l425.373333 425.373334a10.666667 10.666667 0 0 1 0 15.08l-382.706666 382.706666a21.333333 21.333333 0 0 0 30.173333 30.173334z" fill="#5C5C66" p-id="2235"></path></svg></el-icon>
+            <Tag v-for="tagName in article?.tagNames">{{ tagName }}</Tag>
+          </el-space>
+        </el-space>
       </div>
       <div class="article-content">
         <div id="preview" />
       </div>
       <div class="article-btn-group">
-        <el-badge :value="3" :max="99" type="info">
-          <div class="article-btn"><el-icon :size="20"><svg t="1645800277830" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5789" width="200" height="200"><path d="M885.9 533.7c16.8-22.2 26.1-49.4 26.1-77.7 0-44.9-25.1-87.4-65.5-111.1a67.67 67.67 0 0 0-34.3-9.3H572.4l6-122.9c1.4-29.7-9.1-57.9-29.5-79.4-20.5-21.5-48.1-33.4-77.9-33.4-52 0-98 35-111.8 85.1l-85.9 311H144c-17.7 0-32 14.3-32 32v364c0 17.7 14.3 32 32 32h601.3c9.2 0 18.2-1.8 26.5-5.4 47.6-20.3 78.3-66.8 78.3-118.4 0-12.6-1.8-25-5.4-37 16.8-22.2 26.1-49.4 26.1-77.7 0-12.6-1.8-25-5.4-37 16.8-22.2 26.1-49.4 26.1-77.7-0.2-12.6-2-25.1-5.6-37.1zM184 852V568h81v284h-81z m636.4-353l-21.9 19 13.9 25.4c4.6 8.4 6.9 17.6 6.9 27.3 0 16.5-7.2 32.2-19.6 43l-21.9 19 13.9 25.4c4.6 8.4 6.9 17.6 6.9 27.3 0 16.5-7.2 32.2-19.6 43l-21.9 19 13.9 25.4c4.6 8.4 6.9 17.6 6.9 27.3 0 22.4-13.2 42.6-33.6 51.8H329V564.8l99.5-360.5c5.2-18.9 22.5-32.2 42.2-32.3 7.6 0 15.1 2.2 21.1 6.7 9.9 7.4 15.2 18.6 14.6 30.5l-9.6 198.4h314.4C829 418.5 840 436.9 840 456c0 16.5-7.2 32.1-19.6 43z" p-id="5790"></path></svg></el-icon></div>
+        <el-badge :value="article?.likeCount" :max="99" type="info">
+          <div class="article-btn" @click="onLike">
+            <el-icon v-if="article?.active" class="like-active"><svg t="1649600075090" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5406" width="200" height="200"><path d="M884.875894 423.143253 646.970506 423.143253c92.185562-340.464205-63.516616-357.853247-63.516616-357.853247-65.993017 0-52.312436 52.182476-57.3031 60.881602 0 166.502152-176.849824 296.971645-176.849824 296.971645l0 472.171899c0 46.607504 63.516616 63.393819 88.433098 63.393819l357.452111 0c33.641191 0 61.036122-88.224344 61.036122-88.224344 88.434122-300.70569 88.434122-390.177444 88.434122-390.177444C944.657442 418.179195 884.875894 423.143253 884.875894 423.143253L884.875894 423.143253 884.875894 423.143253zM884.875894 423.143253M251.671415 423.299819 109.214912 423.299819c-29.420053 0-29.873378 28.89612-29.873378 28.89612l29.420053 476.202703c0 30.309306 30.361495 30.309306 30.361495 30.309306L262.420223 958.707948c25.686009 0 25.458835-20.049638 25.458835-20.049638L287.879058 459.411271C287.879058 422.837284 251.671415 423.299819 251.671415 423.299819L251.671415 423.299819 251.671415 423.299819zM251.671415 423.299819" p-id="5407"></path></svg></el-icon>
+            <el-icon v-else><svg t="1649587589060" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2238" width="200" height="200"><path d="M832 364.8h-147.2s19.2-64 32-179.2c6.4-57.6-38.4-115.2-102.4-121.6h-12.8c-51.2 0-83.2 32-102.4 76.8l-38.4 96c-32 64-57.6 102.4-76.8 115.2-25.6 12.8-121.6 12.8-128 12.8H128c-38.4 0-64 25.6-64 57.6v480c0 32 25.6 57.6 64 57.6h646.4c96 0 121.6-64 134.4-153.6l51.2-307.2c6.4-70.4-6.4-134.4-128-134.4z m-576 537.6H128V422.4h128v480z m640-409.6l-51.2 307.2c-12.8 57.6-12.8 102.4-76.8 102.4H320V422.4c44.8 0 70.4-6.4 89.6-19.2 32-12.8 64-64 108.8-147.2 25.6-64 38.4-96 44.8-102.4 6.4-19.2 19.2-32 44.8-32h6.4c32 0 44.8 32 44.8 51.2-12.8 102.4-32 166.4-32 166.4l-25.6 83.2h243.2c19.2 0 32 0 44.8 12.8 12.8 12.8 6.4 38.4 6.4 57.6z" p-id="2239"></path></svg></el-icon>
+          </div>
         </el-badge>
-        <el-badge :value="3" :max="99" type="info">
+        <el-badge :value="article?.commentCount" :max="99" type="info">
           <div class="article-btn" @click="openBlank(`/article/${article?.id}/comment`)">
             <el-icon :size="20"><ChatLineRound /></el-icon>
           </div>
@@ -150,6 +173,16 @@ onBeforeRouteUpdate(() => {
 }
 
 .introduce {
+  padding: 8px 32px;
+  font-size: 12px;
+}
+
+.introduce-info {
+  font-size: 14px;
+  color: #999;
+}
+
+.author {
   display: flex;
   align-items: center;
   padding: 8px 32px;
@@ -157,9 +190,21 @@ onBeforeRouteUpdate(() => {
   border-top: 1px solid #eee;
 }
 
-.introduce-info {
+.author-avatar {
+  cursor: pointer;
+}
+
+.author-info {
   flex: 1;
   padding: 0 16px;
+}
+
+.author-nickname {
+  cursor: pointer;
+}
+
+.author-nickname:hover {
+  color: var(--text-color-active);
 }
 
 .outline-view {
@@ -253,6 +298,10 @@ onBeforeRouteUpdate(() => {
   border-radius: 50%;
   box-shadow: 0 0 6px rgb(0 0 0 / 12%);
   cursor: pointer;
+}
+
+.like-active {
+  color: var(--text-color-active);
 }
 
 .article-btn:hover {

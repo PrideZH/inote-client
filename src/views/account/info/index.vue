@@ -40,7 +40,7 @@ const onSave = () => {
   if (!formRef.value) return;
   formRef.value.validate((valid: boolean | undefined) => {
     if (valid && userStore.userInfo) {
-      userApi.updateUser(userStore.userInfo.id, { nickname: form.nickname }).then(res => {
+      userApi.updateUser(userStore.userInfo.id, { nickname: form.nickname, profile: form.profile }).then(res => {
         userStore.userInfo = res.data;
         ElMessage.success('修改成功');
       });
@@ -52,7 +52,7 @@ onMounted(() => {
   userApi.getUserInfo().then(res => {
     userStore.userInfo = res.data;
     form.nickname = res.data.nickname;
-    // TODO: 简介
+    form.profile = res.data.profile;
   });
 });
 </script>

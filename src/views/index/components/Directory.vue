@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 
-import { useDirStore, useNoteStore } from '@/store';
+import { useDirStore, usePathStore } from '@/store';
 
 import { DirectoryNode } from '@/types';
 import { folderApi, noteApi } from '@/api';
@@ -11,18 +11,17 @@ import IconBtn from '@/components/IconBtn.vue';
 import Contextmenu from '@/components/Contextmenu.vue';
 import ContextmenuItem from '@/components/ContextmenuItem.vue';
 import ContextmenuDivided from '@/components/ContextmenuDivided.vue';
-import CreateNoteDialog from './CreateNoteDialog.vue';
-import CreateFolderDialog from './CreateFolderDialog.vue';
-import AddNoteDialog from './AddNoteDialog.vue';
-import RenameDirDialog from './RenameDirDialog.vue';
 import { Document, Sort, Refresh } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import useClipboard from 'vue-clipboard3';
+import { useRoute } from 'vue-router';
 
 const emits = defineEmits(['click-leaf']);
 
+const route = useRoute();
+
 const dirStore = useDirStore();
-const noteStore = useNoteStore();
+const pathStore = usePathStore();
 
 const treeRef = ref();
 const contextMenuRef = ref();
@@ -46,10 +45,10 @@ const nodeClass = (data: DirectoryNode) => {
   // 笔记样式
   style += ' tree-node-note'
   // 选中
-  if (noteStore.currentNote !== null && noteStore.currentNote.id === data.noteId) {
+  if (pathStore.pathItem && pathStore.pathItem.id === data.noteId) {
     style += ' tree-node-current';
     // 被修改
-    if (noteStore.isAlter) {
+    if (pathStore.isAlter) {
       style += ' tree-node-alter';
     }
   }
@@ -62,15 +61,15 @@ const loadNode = (node: Node, resolve: (data: DirectoryNode[]) => void) => {
   const directoryNode: DirectoryNode = node.data as DirectoryNode;
   // 获取根路径下文件
   if (node.level === 0) {
-    if (dirStore.activeMode === 'directory') {
+    if (dirStore.activeMode === 'directory') { // 加载云文件笔记
       folderApi.getDirectory(0).then(res => {
         resolve(res.data);
       });
-    } else if (dirStore.activeMode === 'recentness') {
+    } else if (dirStore.activeMode === 'recentness') { // 加载最近编辑笔记
       noteApi.getMeRecentness(7).then(res => {
         resolve(res.data);
       });
-    } else if (dirStore.activeMode === 'discrete') {
+    } else if (dirStore.activeMode === 'discrete') { // 加载未关联笔记
       noteApi.getMeDiscrete().then(res => {
         resolve(res.data);
       });
@@ -91,7 +90,7 @@ const isAllowDrop = (
   return !(dropType === 'inner' && dropNode.data.note);
 }
 
-// 点击笔记文件获取笔记详细信息
+// 点击笔记文件
 const onClickNode = (node: DirectoryNode) => {
   dirStore.activeKey = node.dirId;
   if (node.note) {
@@ -99,11 +98,9 @@ const onClickNode = (node: DirectoryNode) => {
       ElMessage.error({ message: '数据异常', grouping: true });
       return;
     }
-    noteApi.get(node.noteId).then(res => {
-      // 覆盖当前所有笔记
-      noteStore.push(res.data, true);
-      emits('click-leaf', res.data);
-    });
+    pathStore.openItem('note', node.noteId);
+  } else {
+    pathStore.openItem('folder', node.id);
   }
 }
 
@@ -129,7 +126,7 @@ const onDropNode = (
     parentId = dropNode.parent.data.id || 0;
   }
   if (draggingNode.data.note) {
-    folderApi.setRelevance(draggingNode.data.id, { parentId }).then(res => __refresh(parentId));
+    folderApi.setRelevance(draggingNode.data.id, { folderId: parentId }).then(res => __refresh(parentId));
   } else {
     folderApi.set(draggingNode.data.id, { parentId }).then(res => __refresh(parentId));
   }
@@ -166,25 +163,6 @@ const __refresh = (folderId: number) => {
 }
 
 // 右键菜单功能
-const onClickCreateNode = (parentId: number | null) => {
-  createNoteDialogRef.value.open(parentId, (data: DirectoryNode) => {
-    __refresh(data.parentId);
-    // 打开新建笔记
-    noteApi.get(data.noteId as number).then(res => {
-      noteStore.push(res.data, true);
-    });
-  });
-}
-const onClickCreateFolder = (node: DirectoryNode) => {
-  createFolderDialogRef.value.open(node !== null ? node.id : 0, (data: DirectoryNode) => {
-    __refresh(data.parentId);
-  });
-}
-const onClickAddFolder = (node: DirectoryNode) => {
-  addNoteDialogRef.value.open(node.id, (data: DirectoryNode) => {
-    __refresh(data.parentId);
-  });
-}
 const { toClipboard } = useClipboard();
 const onCopyLink = async (node: DirectoryNode) => {
   try {
@@ -194,26 +172,26 @@ const onCopyLink = async (node: DirectoryNode) => {
     ElMessage.error('复制失败: ' + e)
   }
 }
-const onClickRename = (node: DirectoryNode) => {
-  ElMessageBox.prompt('重命名', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    inputPattern: /^[^/\\:*?<>|"]{1,255}$/,
-    inputErrorMessage: '文件名格式错误',
-    inputValue: node.name
-  }).then(({ value }) => {
-    if (node.note) {
-      folderApi.setRelevance(node.id, { name: value }).then(res => {
-        __refresh(node.parentId);
-      });
-    } else {
-      folderApi.set(node.id, { name: value }).then(res => {
-        __refresh(node.parentId);
-      });
-    }
-  }).catch(() => {});
-}
-// 删除关联笔记
+// const onClickRename = (node: DirectoryNode) => {
+//   ElMessageBox.prompt('重命名', {
+//     confirmButtonText: '确定',
+//     cancelButtonText: '取消',
+//     inputPattern: /^[^/\\:*?<>|"]{1,255}$/,
+//     inputErrorMessage: '文件名格式错误',
+//     inputValue: node.name
+//   }).then(({ value }) => {
+//     if (node.note) {
+//       noteApi.set(node.id, { name: value }).then(res => {
+//         __refresh(node.parentId);
+//       });
+//     } else {
+//       folderApi.set(node.id, { name: value }).then(res => {
+//         __refresh(node.parentId);
+//       });
+//     }
+//   }).catch(() => {});
+// }
+// 删除目录文件
 const onClickDel = (node: DirectoryNode) => {
   if (node.note) {
     folderApi.delRelevance(node.id).then(res => {
@@ -226,7 +204,7 @@ const onClickDel = (node: DirectoryNode) => {
   }
 }
 // 删除笔记
-const onClickDelNode = (node : DirectoryNode) => {
+const onClickDelNote = (node : DirectoryNode) => {
   noteApi.delNote(node.id).then(res => {
     __refresh(node.parentId);
   });
@@ -255,6 +233,7 @@ const onClickDelNode = (node : DirectoryNode) => {
         node-key="dirId"
         draggable
         lazy
+        :expand-on-click-node="false"
         :allow-drop="isAllowDrop"
         :load="loadNode"
         :filter-node-method="filterNode"
@@ -267,7 +246,10 @@ const onClickDelNode = (node : DirectoryNode) => {
       >
         <template #default="{ node, data }">
           <div>
-            <el-icon class="note-icon" v-if="data.note"><Document /></el-icon>
+            <el-icon class="note-icon" v-if="data.note">
+              <Document v-if="data.status === null" />
+              <svg v-else-if="data.status === 1" t="1649251254307" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3623" width="200" height="200"><path d="M487.424 974.848c-8.704 0-17.408-2.048-25.6-6.656C358.4 912.384 232.448 899.072 87.04 883.2l-13.312-1.536c-33.28-3.072-58.368-30.72-58.368-64.512V276.48c0-35.328 29.184-65.024 65.024-66.048 163.84-2.56 306.688 26.624 424.448 87.552 21.504 10.752 35.328 33.792 35.328 57.856V921.6c0 18.944-9.728 36.352-26.112 46.08-8.192 4.608-17.408 7.168-26.624 7.168zM100.864 261.632h-19.456c-8.192 0-14.848 6.656-14.848 14.848v540.672c0 7.168 5.632 13.312 12.8 13.824l13.312 1.536c151.04 15.872 281.088 30.208 393.728 90.624h0.512c0.512 0.512 1.024 0.512 1.536 0 0.512-0.512 1.024-1.024 1.024-1.536V355.84c0-5.12-3.072-10.24-7.168-12.288-106.496-54.784-234.496-81.92-381.44-81.92z" p-id="3624"></path><path d="M544.256 973.312c-9.728 0-19.456-2.56-28.16-8.192-16.896-10.24-27.136-28.16-26.624-48.128V355.328c0-24.576 13.824-47.616 35.84-58.368 117.76-60.416 260.608-90.112 423.936-87.04 35.84 1.024 65.024 30.208 65.024 66.048v540.672c0 33.792-25.088 61.44-58.88 65.024l-20.992 2.56c-141.312 15.36-263.168 29.184-364.032 82.944-8.192 4.096-17.408 6.144-26.112 6.144zM928.768 261.12c-146.432 0-274.432 27.648-380.416 81.92-4.608 2.56-7.68 7.168-7.68 12.8v562.688c0 1.536 0.512 2.56 2.048 3.584 1.536 1.024 2.56 0.512 3.072 0h0.512c109.568-58.368 236.032-72.192 382.976-88.576l20.992-2.56c7.68-0.512 13.312-6.656 13.312-13.824V275.968c0-8.192-6.656-14.848-14.848-14.848h-19.968z" p-id="3625"></path><path d="M386.56 502.272c-3.072 0-6.656-0.512-9.728-2.048-67.584-27.136-136.704-40.96-204.288-40.96-14.336 0-25.6-11.264-25.6-25.6s11.264-25.6 25.6-25.6c74.24 0 149.504 14.848 223.744 45.056 13.312 5.12 19.456 19.968 14.336 33.28-4.096 9.728-13.824 15.872-24.064 15.872zM386.56 673.792c-3.072 0-6.656-0.512-9.728-2.048-67.584-27.136-136.704-40.96-204.288-40.96-14.336 0-25.6-11.264-25.6-25.6s11.264-25.6 25.6-25.6c74.24 0 149.504 14.848 223.744 45.056 13.312 5.12 19.456 19.968 14.336 33.28-4.096 9.728-13.824 15.872-24.064 15.872zM643.072 502.272c-10.24 0-19.968-6.144-23.552-15.872-5.12-13.312 1.024-28.16 14.336-33.28 73.728-29.696 148.992-45.056 223.744-45.056 14.336 0 25.6 11.264 25.6 25.6s-11.264 25.6-25.6 25.6c-68.096 0-136.704 13.824-204.288 40.96-3.584 1.536-7.168 2.048-10.24 2.048zM643.072 673.792c-10.24 0-19.968-6.144-23.552-15.872-5.12-13.312 1.024-28.16 14.336-33.28 73.728-29.696 148.992-45.056 223.744-45.056 14.336 0 25.6 11.264 25.6 25.6s-11.264 25.6-25.6 25.6c-68.096 0-136.704 13.824-204.288 40.96-3.584 1.536-7.168 2.048-10.24 2.048z" p-id="3626"></path></svg>
+            </el-icon>
             <span style="flex: 1">{{ data.name }}</span>
           </div>
         </template>
@@ -278,38 +260,26 @@ const onClickDelNode = (node : DirectoryNode) => {
   <Contextmenu ref="contextMenuRef">
     <template #default="{ data }">
       <template v-if="dirStore.activeMode === 'directory'">
-        <!-- 根路径菜单 -->
-        <template v-if="data === null">
-          <ContextmenuItem @click="onClickCreateNode(0)">新建笔记</ContextmenuItem>
-          <ContextmenuItem @click="onClickCreateFolder(data)">新建文件夹</ContextmenuItem>
-        </template>
-        <!-- 文件菜单 -->
-        <template v-else>
-          <ContextmenuItem v-if="!data.note" @click="onClickCreateNode(data.id)">新建笔记</ContextmenuItem>
-          <ContextmenuItem v-if="!data.note" @click="onClickCreateFolder(data)">新建文件夹</ContextmenuItem>
-          <ContextmenuItem v-if="!data.note" @click="onClickAddFolder(data)">添加笔记</ContextmenuItem>
-          <ContextmenuDivided v-if="!data.note" />
+        <!-- 笔记菜单 -->
+        <template v-if="data.note">
           <ContextmenuItem v-if="data.note" @click="onCopyLink(data)">复制链接</ContextmenuItem>
           <ContextmenuDivided v-if="data.note" />
-          <ContextmenuItem @click="onClickRename(data)">重命名</ContextmenuItem>
+          <ContextmenuItem @click="onClickDel(data)">删除</ContextmenuItem>
+        </template>
+        <!-- 文件夹菜单 -->
+        <template v-else>
           <ContextmenuItem @click="onClickDel(data)">删除</ContextmenuItem>
         </template>
       </template>
       <template v-else-if="dirStore.activeMode === 'discrete'">
         <template v-if="data === null">
-          <ContextmenuItem @click="onClickCreateNode(null)">新建笔记</ContextmenuItem>
         </template>
         <template v-else>
-          <ContextmenuItem @click="onClickDelNode(data)">删除</ContextmenuItem>
+          <ContextmenuItem @click="onClickDelNote(data)">删除</ContextmenuItem>
         </template>
       </template>
     </template>
   </Contextmenu>
-
-  <CreateNoteDialog ref="createNoteDialogRef" />
-  <CreateFolderDialog ref="createFolderDialogRef" />
-  <AddNoteDialog ref="addNoteDialogRef" />
-  <RenameDirDialog ref="renameDirDialogRef" />
 </template>
 
 <style scoped>
@@ -317,7 +287,8 @@ const onClickDelNode = (node : DirectoryNode) => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: #fafafa;
+  height: 100%;
+  background-color: var(--side-bg-color);
 }
 
 .dir-tool {
@@ -344,6 +315,10 @@ const onClickDelNode = (node : DirectoryNode) => {
 
 .tree .note-icon {
   padding: 8px;
+}
+
+.tree {
+  background-color: var(--side-bg-color);
 }
 
 .tree >>> .tree-node {

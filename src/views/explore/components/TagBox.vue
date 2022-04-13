@@ -5,14 +5,17 @@ import { onMounted, ref } from 'vue';
 import Tag from '@/components/Tag.vue';
 
 const tags = ref<TagPage[]>([]);
-onMounted(() => tagApi.getList(100, 1).then(res => tags.value = res.data.records))
+
+const emits = defineEmits(['onSearch']);
+
+onMounted(() => tagApi.getList(100, 1).then(res => tags.value = res.data.records));
 </script>
 
 <template>
   <div class="tag-box">
     <div class="title">热门标签</div>
     <el-space wrap>
-      <Tag class="tag-item" v-for="tag in tags">
+      <Tag class="tag-item" v-for="tag in tags" @click="emits('onSearch', tag.name)">
         {{ tag.name }} <template v-if="tag.articleCount">{{ tag.articleCount }}</template>
       </Tag>
     </el-space>

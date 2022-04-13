@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import { onMounted} from 'vue';
+import { onMounted } from 'vue';
 
-import { useAppStore, useDirStore, useUserStore } from '@/store';
+import { useAppStore, useDirStore, usePathStore, useUserStore } from '@/store';
 import router, { openBlank, push } from '@/router';
 
 import { clearToken } from '@/utils/auth';
 import userApi from '@/api/user';
 
-import { Compass, Delete, Folder, Management, Picture, Setting, Timer } from '@element-plus/icons-vue';
+import { Compass, Delete, Folder, Picture, Setting, Timer } from '@element-plus/icons-vue';
 
 const appStore = useAppStore();
 const dirStore = useDirStore();
 const userStore = useUserStore();
+const pathStore = usePathStore();
 
 const onLogout = () => {
   userApi.logout().then(res => {
@@ -28,6 +29,10 @@ const changeMenu = (mode: 'directory' | 'discrete' | 'recentness' | 'image') => 
     dirStore.activeKey = null;
     router.replace('/index');
     dirStore.refreshTree();
+  }
+
+  if (mode === 'directory') {
+    pathStore.openItem('folder', 0);
   }
 }
 
@@ -86,12 +91,12 @@ onMounted(() => {
           </el-tooltip>
         </div>
         <div class="bottom-menu">
-          <el-tooltip content="探索" placement="right">
+          <el-tooltip content="社区" placement="right">
             <div class="menu-item" @click="openBlank('/explore')"><el-icon><Compass /></el-icon></div>
           </el-tooltip>
-          <el-tooltip content="笔记管理" placement="right">
+          <!-- <el-tooltip content="笔记管理" placement="right">
             <div class="menu-item" @click="openBlank('/publish/note-manager')"><el-icon><Management /></el-icon></div>
-          </el-tooltip>
+          </el-tooltip> -->
           <el-tooltip content="设置" placement="right">
             <div class="menu-item" @click="router.replace('/index/setting')"><el-icon><Setting /></el-icon></div>
           </el-tooltip>
@@ -127,9 +132,9 @@ onMounted(() => {
 .aside {
   display: flex;
   flex-direction: column;
-  border-right: solid 1px #e6e6e6;
   overflow-y: auto;
   overflow-x: hidden;
+  background-color: var(--menu-bg-color);
 }
 
 .menu {
@@ -142,11 +147,15 @@ onMounted(() => {
 .menu-item .el-icon {
   width: 100%;
   padding: 16px 0;
+  color: var(--menu-text-color);
   cursor: pointer;
 }
 
 .active-menu-item {
-  color: #409eff;
+  border-left: 6px solid var(--menu-bg-color);
+  border-right: 6px solid var(--menu-bg-color);
+  background-color: var(--menu-bg-color-active);
+  border-radius: 8px;
 }
 
 .content {

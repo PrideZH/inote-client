@@ -1,20 +1,19 @@
 import { DirectoryNode } from '@/types';
 import axios from 'axios';
 
-export interface DirectoryData {
+export interface FolderData {
   name?: string;
   parentId?: number;
 }
 
 export interface RelevanceData {
-  name: string;
-  noteId: number;
-  folderId: number;
+  noteId?: number;
+  folderId?: number;
 }
 
 const folderApi = {
 
-  add (folderData: DirectoryData) {
+  add (folderData: FolderData) {
     return axios.post<DirectoryNode>('/api/folder/me', folderData);
   },
 
@@ -25,17 +24,21 @@ const folderApi = {
     return axios.post<DirectoryNode>('/api/folder/relevance', relevanceData);
   },
 
+  get (id: number) {
+    return axios.get<DirectoryNode>(`/api/folder/${id}`);
+  },
+
   getDirectory (id: number) {
     return axios.get<DirectoryNode[]>(`/api/folder/${id}/me/directory`);
   },
 
-  set (id: number, dirData: DirectoryData) {
+  set (id: number, dirData: FolderData) {
     return axios.patch<DirectoryNode>(`/api/folder/${id}`, dirData);
   },
 
   // 修改关联笔记文件
-  setRelevance (id: number, dirData: DirectoryData) {
-    return axios.patch<DirectoryNode>(`/api/folder/relevance/${id}`, dirData);
+  setRelevance (id: number, relevanceData: RelevanceData) {
+    return axios.patch<DirectoryNode>(`/api/folder/relevance/${id}`, relevanceData);
   },
 
   del (id: number) {

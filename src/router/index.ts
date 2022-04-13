@@ -67,13 +67,39 @@ const routes: Array<RouteRecordRaw> = [
     component: ExploreLayout,
     redirect: 'explore',
     meta: {
-      title: '探索 · inote'
+      title: '社区 · inote'
     },
     children: [
       {
         name: 'explore',
         path: 'explore',
         component: () => import('@/views/explore/index.vue')
+      },
+      {
+        name: 'space',
+        path: 'space/:id',
+        component: () => import('@/views/space/index.vue'),
+        meta: {
+          title: '个人空间 · inote'
+        },
+        children: [
+          {
+            path: '',
+            component: () => import('@/views/space/article/index.vue')
+          },
+          {
+            path: 'moment',
+            component: () => import('@/views/space/moment/index.vue')
+          },
+          {
+            path: 'collection',
+            component: () => import('@/views/space/collection/index.vue')
+          },
+          {
+            path: 'setting',
+            component: () => import('@/views/space/setting/index.vue')
+          }
+        ]
       },
       {
         name: 'account',
@@ -99,37 +125,25 @@ const routes: Array<RouteRecordRaw> = [
         ]
       },
       {
-        name: 'publish',
-        path: 'publish',
-        component: () => import('@/views/publish/index.vue'),
-        redirect: '/publish/home',
+        name: 'message',
+        path: 'message',
+        component: () => import('@/views/message/index.vue'),
+        redirect: '/message/reply',
         meta: {
-          title: '文章中心 · inote'
+          title: '消息中心 · inote'
         },
         children: [
           {
-            path: 'home',
-            component: () => import('@/views/publish/home/index.vue')
+            path: 'reply',
+            component: () => import('@/views/message/reply/index.vue')
           },
           {
-            path: 'upload/:id',
-            component: () => import('@/views/publish/upload/index.vue')
+            path: 'system',
+            component: () => import('@/views/message/system/index.vue')
           },
           {
-            path: 'article/:id',
-            component: () => import('@/views/publish/article/index.vue')
-          },
-          {
-            path: 'note-manager',
-            component: () => import('@/views/publish/noteManager/index.vue')
-          },
-          {
-            path: 'article-manager',
-            component: () => import('@/views/publish/articleManager/index.vue')
-          },
-          {
-            path: 'comment-manager',
-            component: () => import('@/views/publish/commentManager/index.vue')
+            path: 'whisper',
+            component: () => import('@/views/message/whisper/index.vue')
           }
         ]
       },
@@ -180,5 +194,5 @@ export const openBlank = (path: string) => {
   const routeUrl = router.resolve({
     path, query: {}
   });
-  window.open(routeUrl.href, '_blank');
+  window.open(path, '_blank');
 };

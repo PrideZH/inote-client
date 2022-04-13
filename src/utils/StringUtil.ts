@@ -1,11 +1,11 @@
 export class StringUtil {
 
   public static isEmpty(str: string): boolean {
-    return str.trim() !== '';
+    return str.trim() === '';
   }
 
   public static isBlank(str: string | null): boolean {
-    return str !== null && str.trim() !== '';
+    return str === null || str.trim() === '';
   }
 
   public static isOrBlank(...strs: (string | null)[]): boolean {
@@ -30,6 +30,10 @@ export class StringUtil {
       }
     }
     return true;
+  }
+
+  public static filterSpecialChar(str: string): string {
+    return str.replace(/[^a-zA-Z0-9\u4E00-\u9FA5!@#$%^&*_.]/g, '');
   }
 
 }

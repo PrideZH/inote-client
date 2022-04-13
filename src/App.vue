@@ -39,15 +39,13 @@ body, #app {
 /* 定义滚动条轨道 */
 ::-webkit-scrollbar-track
 {
-	border-radius: 10px;
-	background-color: #F5F5F5;
+	background-color: #fff;
 }
 
 /* 定义滑块 */
 ::-webkit-scrollbar-thumb
 {
-	border-radius: 10px;
-	background-color: #555;
+	background-color: #afafaf;
   cursor: auto;
 }
 </style>

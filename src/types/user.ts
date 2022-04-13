@@ -4,6 +4,7 @@ export interface UserInfo {
   password?: string;
   nickname: string;
   avatarUrl: string | null;
+  profile: string;
   createTime?: Date;
   updateTime?: Date;
 }

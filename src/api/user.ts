@@ -1,6 +1,10 @@
 import axios from 'axios';
 import { UserInfo } from '@/types/user';
-import { Token } from '@/types/global';
+
+export interface TokenVO {
+  token: string;
+  timeout: number;
+}
 
 export interface LoginData {
   username: string;
@@ -11,16 +15,37 @@ export interface UserData {
   password?: string;
   nickname?: string;
   avatarUrl?: string;
+  profile?: string;
 }
 
 const userApi = {
 
+  getEmailCode (params: {email: string}) {
+    return axios.post('/api/user/register/code', params);
+  },
+
+  register (params: {
+    username: string,
+    password: string,
+    code: string
+  }) {
+    return axios.post('/api/user/register', params);
+  },
+
   login (data: LoginData) {
-    return axios.post<Token>('/api/user/login', data);
+    return axios.post<TokenVO>('/api/user/login', data);
   },
 
   logout () {
-    return axios.post<Token>('/api/user/logout');
+    return axios.post<TokenVO>('/api/user/logout');
+  },
+
+  refreshToken() {
+    return axios.post('/api/admin/refreshToken');
+  },
+
+  get (id: number) {
+  return axios.get<UserInfo>(`/api/user/${id}/open`);
   },
 
   getUserInfo () {

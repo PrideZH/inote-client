@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 
-import { useDirStore, useNoteStore } from '@/store';
+import { useDirStore, usePathStore } from '@/store';
 
 import { DirectoryNode } from '@/types';
 import { folderApi, noteApi } from '@/api';
@@ -18,7 +18,7 @@ import useClipboard from 'vue-clipboard3';
 const emits = defineEmits(['click-leaf']);
 
 const dirStore = useDirStore();
-const noteStore = useNoteStore();
+const pathStore = usePathStore();
 
 const treeRef = ref();
 const contextMenuRef = ref();
@@ -38,10 +38,10 @@ const nodeClass = (data: DirectoryNode) => {
   // 笔记样式
   style += ' tree-node-note'
   // 选中
-  if (noteStore.currentNote !== null && noteStore.currentNote.id === data.noteId) {
+  if (pathStore.pathItem !== null && pathStore.pathItem.id === data.noteId) {
     style += ' tree-node-current';
     // 被修改
-    if (noteStore.isAlter) {
+    if (pathStore.isAlter) {
       style += ' tree-node-alter';
     }
   }
@@ -93,7 +93,7 @@ const onClickNode = (node: DirectoryNode) => {
     }
     noteApi.get(node.noteId).then(res => {
       // 覆盖当前所有笔记
-      noteStore.push(res.data, true);
+      // noteStore.push(res.data, true);
       emits('click-leaf', res.data);
     });
   }
@@ -121,7 +121,7 @@ const onDropNode = (
     parentId = dropNode.parent.data.id || 0;
   }
   if (draggingNode.data.note) {
-    folderApi.setRelevance(draggingNode.data.id, { parentId }).then(res => __refresh(parentId));
+    folderApi.setRelevance(draggingNode.data.id, { folderId: parentId }).then(res => __refresh(parentId));
   } else {
     folderApi.set(draggingNode.data.id, { parentId }).then(res => __refresh(parentId));
   }
@@ -165,15 +165,15 @@ const onClickRename = (node: DirectoryNode) => {
     inputErrorMessage: '文件名格式错误',
     inputValue: node.name
   }).then(({ value }) => {
-    if (node.note) {
-      folderApi.setRelevance(node.id, { name: value }).then(res => {
-        __refresh(node.parentId);
-      });
-    } else {
-      folderApi.set(node.id, { name: value }).then(res => {
-        __refresh(node.parentId);
-      });
-    }
+    // if (node.note) {
+    //   folderApi.setRelevance(node.id, { name: value }).then(res => {
+    //     __refresh(node.parentId);
+    //   });
+    // } else {
+    //   folderApi.set(node.id, { name: value }).then(res => {
+    //     __refresh(node.parentId);
+    //   });
+    // }
   }).catch(() => {});
 }
 // 删除关联笔记

@@ -8,6 +8,7 @@ const appStore = useAppStore();
 </script>
 
 <template>
-  <IndexMobile v-if="appStore.isMobile" />
-  <IndexPc v-else />
+  <!-- <IndexMobile v-if="appStore.isMobile" />
+  <IndexPc v-else /> -->
+  <IndexPc />
 </template>

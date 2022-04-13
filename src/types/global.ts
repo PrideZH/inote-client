@@ -11,7 +11,3 @@ export interface PicbedConfig {
   path: string;
   accessToken: string;
 }
-
-export interface Token {
-  token: string;
-}

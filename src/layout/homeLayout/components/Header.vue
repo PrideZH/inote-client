@@ -12,7 +12,7 @@ import { isLogin } from '@/utils/auth';
         <el-menu-item index="help" @click="router.push('/note/27')">帮助</el-menu-item>
         <el-menu-item index="log">更新日志</el-menu-item>
         <el-menu-item index="download">下载</el-menu-item>
-        <el-menu-item index="explore"  @click="router.push('/explore')">探索</el-menu-item>
+        <el-menu-item index="explore"  @click="router.push('/explore')">社区</el-menu-item>
       </el-menu>
       <el-divider direction="vertical" style="margin-right: 24px" />
       <el-button v-if="!isLogin()" @click="router.push('/home/login')">登录</el-button>

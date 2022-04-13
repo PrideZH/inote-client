@@ -5,7 +5,6 @@ import { useUserStore } from '@/store';
 import { getToken } from '@/utils/auth';
 import { Plus } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
-import { ElFile } from 'element-plus/es/components/upload/src/upload.type';
 import { ref } from 'vue';
 
 const userStore = useUserStore();
@@ -15,7 +14,7 @@ const avatar = ref<string>('');
 
 const uploadUrl = import.meta.env.VITE_APP_BASE_URL + '/api/upload/avatar';
 
-const beforeAvatarUpload = (file: ElFile): boolean => {
+const beforeAvatarUpload = (file: any): boolean => {
   const isJPG = file.type === 'image/jpeg';
   const isLt2M = file.size < 1024 * 500;
 
@@ -31,7 +30,7 @@ const beforeAvatarUpload = (file: ElFile): boolean => {
 /**
  * 覆盖前一个图片
  */
-const onExceed = (files: ElFile[]) => {
+const onExceed = (files: any[]) => {
   uploadRef.value.clearFiles()
   uploadRef.value.handleStart(files[0])
 }

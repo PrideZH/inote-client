@@ -1,9 +1,10 @@
-import { ArticlePage, ArticleOpen, Page, ArticleInfoPage, ArticleInfo } from '@/types';
+import { ArticlePage, ArticleOpen, Page, ArticleInfo } from '@/types';
 import axios from 'axios';
 
 export interface ArtivleData {
   coverUrl?: string;
   noteId?: number;
+  status?: number;
   summary?: string;
   tags?: string[];
   title?: string;
@@ -19,7 +20,7 @@ const articleApi = {
     return axios.get<ArticleOpen>(`/api/article/${id}`);
   },
 
-  getContent (id: number, section: string) {
+  getContent (id: number, section?: string) {
     return axios.get<string>(`/api/article/${id}/content`, { params: { section } });
   },
 
@@ -27,12 +28,12 @@ const articleApi = {
     return axios.get<ArticleInfo>(`/api/article/${id}/me`);
   },
 
-  getList (page: number = 1, size: number = 10, keywords?: string[]) {
-    return axios.get<Page<ArticlePage>>('/api/article', { params: { page, size, keywords } });
+  getList (page: number = 1, size: number = 10, keywords?: string[], userId?: number) {
+    return axios.get<Page<ArticlePage>>('/api/article', { params: { page, size, userId, keywords } });
   },
 
   getListMe (page: number, size: number) {
-    return axios.get<Page<ArticleInfoPage>>('/api/article/me', { params: { page, size } });
+    return axios.get<Page<ArticlePage>>('/api/article/me', { params: { page, size } });
   },
 
   set (id: number, data: ArtivleData) {

@@ -20,8 +20,11 @@ export interface DirectoryNode extends BaseEntity {
   dirId: string;
   name: string;
   parentId: number;
-  noteId?: number;
   note: boolean;
+
+  noteId?: number;
+  status?: number;
+
   children?: DirectoryNode[]
 }
 
@@ -33,13 +36,13 @@ export interface Folder extends BaseEntity {
 export interface Note extends BaseEntity {
   name: string;
   content: string;
-  articleId: number | null;
+  article: ArticleInfo | null;
 }
 
-export interface NotePage extends BaseEntity {
-  name: string;
-  article: ArticleInfoPage | null;
-}
+// export interface NotePage extends BaseEntity {
+//   name: string;
+//   article: ArticleInfoPage | null;
+// }
 
 export interface ArticleOpen extends BaseEntity {
   content: string;
@@ -48,9 +51,14 @@ export interface ArticleOpen extends BaseEntity {
   title: string;
   sections: string[];
   author: UserPage;
+  viewCount: number;
+  likeCount: number;
+  active: boolean;
+  commentCount: number;
 }
 
 export interface ArticlePage extends BaseEntity {
+  noteId: number;
   title: string;
   summary: string | null;
   coverUrl: string | null;
@@ -61,17 +69,10 @@ export interface ArticlePage extends BaseEntity {
 
 export interface ArticleInfo extends BaseEntity {
   title: string;
-  content: string;
   summary: string;
-  close: boolean;
+  status: number;
   coverUrl: string | null;
   tagNames: string[];
-}
-
-export interface ArticleInfoPage extends BaseEntity {
-  title: string;
-  summary: string;
-  close: boolean;
 }
 
 export interface TagPage extends BaseEntity {

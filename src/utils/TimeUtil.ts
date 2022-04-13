@@ -45,4 +45,37 @@ export class TimeUtil {
     return strAry.join('');
   }
 
+  public static friendly(date: Date): string {
+    date = new Date(date);
+    const diff: number = (new Date().getTime() - date.getTime()) / 1000;
+    if (diff < 60 * 10){ // 十分钟内
+      return '刚刚';
+    } else if (diff < 60 * 60) { // 1小时内
+      return  Math.floor(diff / 60) + '分钟前';
+    } else if (diff < 60 * 60 * 24) { // 24小时内
+      return Math.floor(diff / 60 / 60) + '小时前';
+    } else if (diff < 60 * 60 * 24 * 3) { // 3天内
+      return Math.floor(diff / 60 / 60 / 24) + '天前';
+    } else { // 超过3天
+      return TimeUtil.concise(date);
+    }
+  }
+
+  public static concise(date: Date): string {
+    if (typeof(date) === 'string') {
+      date = new Date(date);
+    } else {
+      date = new Date(date.getTime());
+    }
+    const nowDate: Date = new Date();
+    const res: string = '';
+    if (date.getFullYear() != nowDate.getFullYear()) {
+      return TimeUtil.dateFormat(date, "yyyy-MM-dd hh:mm:ss");
+    } else if (date.getMonth() != nowDate.getMonth() || date.getDate() != nowDate.getDate()) {
+      return TimeUtil.dateFormat(date, "MM-dd hh:mm:ss");
+    } else {
+      return TimeUtil.dateFormat(date, "hh:mm:ss");
+    }
+  }
+
 }

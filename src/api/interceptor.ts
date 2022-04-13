@@ -1,9 +1,10 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { clearToken, getToken } from '@/utils/auth';
+import { clearToken, getToken, Token } from '@/utils/auth';
 import { useAppStore } from '@/store';
 import { ElMessage } from 'element-plus';
 import userApi from './user';
 import router from '@/router';
+import qs from 'qs';
 
 export const TIMEOUT: number = 30 * 1000;
 
@@ -29,10 +30,25 @@ axios.interceptors.request.use(
       appStore.loadPercent += 10000 / TIMEOUT;
     }, 100);
 
+    const token: Token | null = getToken();
     if (config.headers) {
-      const token: string | null = getToken();
-      if (token) config.headers['token'] = token;
+      if (token) config.headers['token'] = token.token;
     }
+
+    // 刷新 token
+    const nowTime: number = new Date().getTime();
+    if (token && token.timeout < nowTime && token.timeout > nowTime - 60 * 60 * 12) {
+      userApi.refreshToken();
+    }
+
+    // 参数序列化
+    if (config.method === 'get') {
+      config.paramsSerializer = function(params) {
+        // 解析数组参数
+        return qs.stringify(params, { arrayFormat: 'repeat' });
+      }
+    }
+
     return config;
   },
   (error) => {

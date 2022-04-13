@@ -1,11 +1,10 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 import Vditor from 'vditor';
 import { nextTick, onMounted, ref } from 'vue';
 
 import { ElMessage, ElMessageBox } from 'element-plus';
-import Header from '../components/Header.vue';
 
-import { useNoteStore } from '@/store';
+import { useDirStore } from '@/store';
 import { StringUtil } from '@/utils/StringUtil';
 import { getToken } from '@/utils/auth';
 import Gitee from '@/utils/gitee';
@@ -13,7 +12,7 @@ import Gitee from '@/utils/gitee';
 import { PicbedConfig } from '@/types/global';
 import { NotePage } from '@/types';
 
-const noteStore = useNoteStore();
+const noteStore = useDirStore();
 
 const detailDrawer = ref<boolean>(false);
 
@@ -244,4 +243,4 @@ onMounted(() => {
 #editor >>> .vditor-reset {
   width: 100vw;
 }
-</style>
+</style> -->

@@ -1,0 +1,10 @@
+/*全局样式*/
+:root {
+  --menu-bg-color : #11101d;
+  --menu-bg-color-active : #1d1b31;
+  --menu-text-color : #fff;
+  --side-bg-color : #fff;
+
+  --text-color-info: #bbbbbb;
+  --text-color-active: #00d6ac;
+}
